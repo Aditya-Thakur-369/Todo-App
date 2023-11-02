@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todo/models/model.dart';
-import 'package:todo/utilities/user_data.dart';
+import 'package:todo/screens/bottomsheet_addtask.dart';
 
 final FirebaseFirestore store = FirebaseFirestore.instance;
 final CollectionReference reference = store.collection("Users");
@@ -44,28 +44,59 @@ class FirebaseStore {
         .get();
 
     final info = doc.data() as Map<String, dynamic>;
-    print(info);
+    // print(info);
     Usermodel a = Usermodel(
       email: info['email'],
       name: info['name'],
     );
-    print(a);
+    // print(a);
 
     return a;
   }
 
-  static Future Savetask(NoteModel note, {required String title}) async {
+  static Future Savetask(NoteModel note, String date) async {
     try {
-      await reference
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("Notes")
-        .add(note.toMap());
+      await FirebaseFirestore.instance
+          .collection("User")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("Task")
+          // .doc(date)
+          .add(note.toMap());
       return true;
     } on FirebaseAuthException catch (e) {
       return e.code;
     } catch (e) {
       return e;
     }
-    return true;
+    return null;
+  }
+
+  static Future<List<NoteModel>> GetTask(String date) async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection("User")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("Task")
+          .where('date', isEqualTo: date)
+          .where('isCompleted', isEqualTo: false)
+          .get();
+
+      List<NoteModel> notes = [];
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((doc) {
+          final info = doc.data() as Map<String, dynamic>;
+          NoteModel a = NoteModel.fromMap(info);
+          notes.add(a);
+        });
+      }
+
+      if (notes.isEmpty) {
+        print('No documents found for the specified date.');
+      }
+      return notes;
+    } catch (e) {
+      print('An error occurred: $e');
+      return []; // return an empty list or any other suitable action
+    }
   }
 }

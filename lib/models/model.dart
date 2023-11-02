@@ -77,7 +77,7 @@ class NoteModel {
     this.starttime,
     this.endtime,
     this.reminder,
-    this.isCompleted,
+    this.isCompleted = false,
   });
 
   NoteModel copyWith({

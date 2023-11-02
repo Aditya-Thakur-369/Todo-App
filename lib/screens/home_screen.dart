@@ -1,21 +1,22 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
 import 'package:todo/models/model.dart';
+import 'package:todo/providers/dateTime_provider.dart';
+import 'package:todo/providers/selectedbox_provider.dart';
+import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
+import 'package:todo/screens/bottomsheet_addtask.dart';
+import 'package:todo/screens/bottomsheet_addtask.dart';
 import 'package:todo/screens/signin_screen.dart';
-import 'package:todo/utilities/features.dart';
 import 'package:todo/utilities/firebase_database.dart';
-import 'package:todo/utilities/user_data.dart';
-import 'package:todo/widgets/custom_widgets.dart';
-import 'package:intl/intl.dart';
+
+import 'bottomsheet_addtask.dart';
 
 class home_screen extends StatefulWidget {
   const home_screen({super.key});
@@ -25,27 +26,17 @@ class home_screen extends StatefulWidget {
 }
 
 class _home_screenState extends State<home_screen> {
-  final _formkey = GlobalKey<FormState>();
+  String? title;
+  String? notebody;
+  String? starttime;
+  String? endtime;
 // List of dropdown options
-  List<String> options = [
-    '5 Minutes early',
-    '10 Minutes early',
-    '15 Minutes early',
-    '30 Minutes early'
-  ];
-
-  TextEditingController title = TextEditingController();
-  TextEditingController note = TextEditingController();
-  TextEditingController date = TextEditingController();
-  TextEditingController starttime = TextEditingController();
-  TextEditingController endtime = TextEditingController();
-  TextEditingController reminder = TextEditingController();
 
   String? name;
   String? email;
 
-  int selectedbox = 0;
   List<int> numbers = List.generate(100, (index) => index + 1);
+  List<NoteModel> tasks = [];
 
   List<Color> boxcolors = [
     Colors.deepPurple,
@@ -62,16 +53,8 @@ class _home_screenState extends State<home_screen> {
   ];
 
   // Function to get the current date in a specific format
-  getFormattedDate(DateTime dateTime) {
-    var formatter = DateFormat('dd-MM-yyyy');
-    print(formatter.format(dateTime));
-    return formatter.format(dateTime);
-  }
 
   // Function to get the current time in a specific format
-
-  DateTime datenow = DateTime.now();
-  TimeOfDay timenow = TimeOfDay.now();
   userinfo() async {
     try {
       Usermodel user = await FirebaseStore.userinfo();
@@ -86,425 +69,102 @@ class _home_screenState extends State<home_screen> {
     // print(del['email']);
   }
 
-  Future<dynamic> savetask() async {
-    if (_formkey.currentState != null && _formkey.currentState!.validate()) {
-      Navigator.pop(context);
-      title.text = "";
-      note.text = "";
-      date.text = "";
-      starttime.text = "";
-      endtime.text = "";
-
-      // FirebaseStore.Savetask(
-      //   title: title.text,
-      //   note: note.text,
-      //   date: date.text,
-      //   starttime: starttime.text,
-      //   endtime: endtime.text,
-      //   reminder: reminder.text,
-      // );
-      print("Done ");
-      print(title.text);
-      print(note.text);
-      print(date.text);
-      print(starttime.text);
-      print(endtime.text);
-      print(reminder.text);
-    }
-  }
-
-  showoption() {
-    showModalBottomSheet(
-      isDismissible: true,
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (context) {
-        return FractionallySizedBox(
-          child: Container(
-            height: MediaQuery.of(context).size.height / 3,
-            width: double.infinity,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 6,
-                  width: 120,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                TextButton(
-                    onPressed: () {},
-                    child: Text("Mark as done ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.normal,
-                          color: Colors.grey.shade700,
-                          decoration: TextDecoration.overline,
-                        ))),
-                Divider(
-                  color: Colors.grey.shade800,
-                  thickness: 0.5,
-                  indent: 20,
-                  endIndent: 20,
-                ),
-                TextButton(
-                    onPressed: () {},
-                    child: Text("Edit ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.normal,
-                          color: Colors.grey.shade700,
-                          decoration: TextDecoration.overline,
-                        ))),
-                Divider(
-                  color: Colors.grey.shade800,
-                  thickness: 0.5,
-                  indent: 20,
-                  endIndent: 20,
-                ),
-                TextButton(
-                    onPressed: () {},
-                    child: Text("Delete ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.normal,
-                          color: Colors.grey.shade700,
-                          decoration: TextDecoration.overline,
-                        ))),
-                Divider(
-                  color: Colors.grey.shade800,
-                  thickness: 0.5,
-                  indent: 20,
-                  endIndent: 20,
-                ),
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Cancel ",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontStyle: FontStyle.normal,
-                          color: Colors.redAccent,
-                          decoration: TextDecoration.overline,
-                        )))
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  gettask() {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      isDismissible: true,
-      context: context,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.9,
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: double.infinity,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    height: 6,
-                    width: 120,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text(
-                    "Add Task",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Form(
-                      key: _formkey,
-                      child: Column(
-                        children: [
-                          CustomTextFormField(
-                            controller: title,
-                            sur: const Icon(Icons.note_add_outlined),
-                            labelText: "Note Title",
-                            hintText: "Eat Snaks",
-                            validator: (value) {
-                              if (value == null && value!.isEmpty) {
-                                return "Title can not be empty";
-                              } else if (value.length < 3) {
-                                return "It need minimum 3 letters";
-                              } else {
-                                return null;
-                              }
-                            },
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          CustomTextFormField(
-                            controller: note,
-                            sur: const Icon(
-                              Icons.abc_outlined,
-                              size: 30,
-                            ),
-                            labelText: "Note Body",
-                            hintText: "I will eat chips with cock !",
-                            validator: (value) {
-                              if (value == null && value!.isEmpty) {
-                                return "Body can not be empty";
-                              } else if (value.length < 3) {
-                                return "It need minimum 3 letters";
-                              } else {
-                                return null;
-                              }
-                            },
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          TextFormField(
-                              controller: date,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                labelText: 'Date',
-                                suffixIcon: IconButton(
-                                    onPressed: () {
-                                      DatePicker datePicker = DatePicker(
-                                        labelText: 'Select Date',
-                                        selectedDate: DateTime.now(),
-                                        onSelectedDate: (DateTime newDate) {
-                                          setState(() {
-                                            date.text =
-                                                getFormattedDate(newDate)
-                                                    .toString();
-                                            // date.text = newDate.toString();
-                                          });
-                                          print('Selected date: $newDate');
-                                        },
-                                      );
-                                      datePicker.selectDate(context);
-                                    },
-                                    icon: Icon(Icons.date_range)),
-                              ),
-                              validator: (value) {
-                                if (value == null) {
-                                  return "Date can not be empty";
-                                } else if (value.length < 2) {
-                                  return "Date can not be empty";
-                                } else {
-                                  return null;
-                                }
-                              }),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.all(5),
-                                  child: TextFormField(
-                                    controller: starttime,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: "Start Time",
-                                      hintText: "12:15",
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            TimePicker timePicker = TimePicker(
-                                              labelText: 'Select Time',
-                                              selectedTime: TimeOfDay.now(),
-                                              onSelectedTime:
-                                                  (TimeOfDay newTime) {
-                                                print(
-                                                    "time i showing  $newTime");
-                                                setState(() {
-                                                  starttime.text = Feature()
-                                                      .getFormattedTime(
-                                                          newTime);
-                                                  print(starttime.text);
-                                                });
-                                                print(
-                                                    'Selected time Dummy Time : $newTime');
-                                              },
-                                            );
-                                            timePicker.selectTime(context);
-                                          },
-                                          icon: const Icon(
-                                              Icons.watch_later_outlined)),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null && value!.isEmpty) {
-                                        return "Start Time can not be empty";
-                                      } else if (value.length < 2) {
-                                        return "Start time can not be empty";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.all(5),
-                                  child: TextFormField(
-                                    controller: endtime,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      labelText: "End Time",
-                                      hintText: "12:45",
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            TimePicker timePicker = TimePicker(
-                                              labelText: 'Select Time',
-                                              selectedTime: TimeOfDay.now(),
-                                              onSelectedTime:
-                                                  (TimeOfDay newTime) {
-                                                print(
-                                                    "time i showing  $newTime");
-                                                setState(() {
-                                                  endtime.text = Feature()
-                                                      .getFormattedTime(
-                                                          newTime);
-                                                  print(starttime.text);
-                                                });
-                                                print(
-                                                    'Selected time Dummy Time : $newTime');
-                                              },
-                                            );
-                                            timePicker.selectTime(context);
-                                          },
-                                          icon: const Icon(
-                                              Icons.watch_later_outlined)),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null && value!.isEmpty) {
-                                        return "End Time can not be empty";
-                                      } else if (value.length < 2) {
-                                        return "End time can not be empty";
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          DropdownButtonFormField(
-                            value: reminder.text,
-                            icon: const Icon(Icons.arrow_downward),
-                            iconSize: 24,
-                            elevation: 16,
-                            style: const TextStyle(color: Colors.white),
-                            onChanged: (String? newValue) {
-                              // Update the dropdown value when the user selects an option
-                              reminder.text = newValue!;
-                            },
-                            items: options
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                labelText: 'Reminder',
-                                hintText: "5 Minutes early "),
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          CustomElevatedButton(
-                            message: "Add Task",
-                            function: savetask,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // DateTimePicker(
-                  //     labelText: "Time",
-                  //     selectedDate: datenow,
-                  //     selectedTime: timenow)
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> sign_out() async {
     FirebaseAuth.instance.signOut().then((value) async {
       var SharedPref = await SharedPreferences.getInstance();
       SharedPref.setBool(splash_screenState.KEYLOGIN, false);
-      Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const signin_screen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 1.0);
-              const end = Offset.zero;
-              final tween = Tween(begin: begin, end: end);
-              final offsetAnimation = animation.drive(tween);
+      if (context.mounted) {
+        Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const signin_screen(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(0.0, 1.0);
+                const end = Offset.zero;
+                final tween = Tween(begin: begin, end: end);
+                final offsetAnimation = animation.drive(tween);
 
-              return SlideTransition(
-                position: offsetAnimation,
-                child: child,
-              );
-            },
-          ));
+                return SlideTransition(
+                  position: offsetAnimation,
+                  child: child,
+                );
+              },
+            ));
+      }
     });
+  }
+
+  getcurrentmonth() {}
+  String formatDate(Map<String, dynamic> dateMap) {
+    String day = dateMap['date'].toString();
+    String month = dateMap['month'];
+    String year = dateMap['year'].toString();
+    return "$day $month $year";
   }
 
   @override
   void initState() {
-    // TODO: implement initState
+    super.initState();
     userinfo();
+    getcurrentmonth();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final selectedBoxProvider = context.read<SelectedBoxProvider>();
+      final datesProvider = context.read<DatesProvider>();
+      final dates = DatesProvider();
+      List<dynamic> dateList = dates.showDates();
+      selectedBoxProvider
+          .updateSelectedBox(dateList[0]); // Set the initial value
+
+      // print(formatDate(selectedBoxProvider.selectedBox));
+      // FirebaseStore.GetTask(formatDate(selectedBoxProvider.selectedBox));
+    });
+    // Dates dateTime = Dates();
+    // List<dynamic> dates = dateTime.Calender();
+    // print(dates);
   }
 
   @override
   Widget build(BuildContext context) {
-    reminder.text = '5 Minutes early';
+    final selectedBoxProvider = context.read<SelectedBoxProvider>();
+    final selectedbox = Provider.of<SelectedBoxProvider>(context);
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    final dateProvider = Provider.of<DatesProvider>(context);
+    final dates = DatesProvider();
+    List<dynamic> dateList = dates.showDates();
+    final today = dateList[0];
+
+    Future<String> getcurrentmonth() async {
+      if (today['month'] == "Jan") {
+        return "January";
+      } else if (today['month'] == "Feb") {
+        return "February";
+      } else if (today['month'] == "Mar") {
+        return "March";
+      } else if (today['month'] == "Apr") {
+        return "April";
+      } else if (today['month'] == "May") {
+        return "May";
+      } else if (today['month'] == "Jun") {
+        return "June";
+      } else if (today['month'] == "Jul") {
+        return "July";
+      } else if (today['month'] == "Aug") {
+        return "August";
+      } else if (today['month'] == "Sep") {
+        return "September";
+      } else if (today['month'] == "Oct") {
+        return "October";
+      } else if (today['month'] == "Nov") {
+        return "November";
+      } else if (today['month'] == "Dec") {
+        return "December";
+      } else {
+        return "Something Went Wrong";
+      }
+    }
+
     final screenwidth = MediaQuery.of(context).size.width;
     final screenhight = MediaQuery.of(context).size.height;
     final themeprovider = Provider.of<ThemeProvider>(context);
@@ -549,8 +209,8 @@ class _home_screenState extends State<home_screen> {
                             text: "Hi, ",
                             style: TextStyle(
                               color: themeprovider.isDarkMode
-                                  ? Colors.white
-                                  : Colors.black,
+                                  ? Colors.black
+                                  : Colors.white,
                               fontSize: 18,
                               letterSpacing: 2,
                             )),
@@ -558,8 +218,8 @@ class _home_screenState extends State<home_screen> {
                           text: "$name",
                           style: TextStyle(
                               color: themeprovider.isDarkMode
-                                  ? Colors.white
-                                  : Colors.black,
+                                  ? Colors.black
+                                  : Colors.white,
                               fontSize: 25,
                               fontWeight: FontWeight.w200),
                         ),
@@ -587,7 +247,8 @@ class _home_screenState extends State<home_screen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      gettask();
+                      // get task bottom model sheet appear heer
+                      gettask(context);
                     },
                     child: Container(
                       height: MediaQuery.of(context).size.height / 16,
@@ -616,7 +277,15 @@ class _home_screenState extends State<home_screen> {
                     ),
                   ),
                   Text(
-                    "November 23, 2023 \nToday",
+                    // gettoday,
+                    selectedbox.getFormattedDate(),
+                    // getcurrentmonth() +
+                    //     ' ' +
+                    //     today['date'].toString() +
+                    //     ' , ' +
+                    //     today['year'].toString() +
+                    //     '\n' +
+                    //     "Today",
                     style: TextStyle(
                         fontSize: 20,
                         color: Colors.grey[650],
@@ -636,71 +305,121 @@ class _home_screenState extends State<home_screen> {
               height: 110,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: numbers.last,
+                itemCount: dateList.length,
                 itemBuilder: (context, index) {
+                  final item = dateList[index];
                   final color = boxcolors[index % boxcolors.length];
+                  final selectedBoxValue = selectedbox.selectedBox;
 
                   return Padding(
                     padding: const EdgeInsets.only(right: 5, left: 3),
                     child: GestureDetector(
                       onTap: () {
-                        setState(() {
-                          selectedbox = index;
-                          print(selectedbox);
+                        selectedbox.updateSelectedBox(item);
+                        // void showTasks() async {
+                        //   await taskProvider
+                        //       .fetchTasks(formatDate(selectedbox.selectedBox));
+                        // }
+                        FirebaseStore.GetTask(
+                                formatDate(selectedbox.selectedBox))
+                            .then((notes) {
+                          if (notes.isNotEmpty) {
+                            tasks = notes;
+                            for (var note in notes) {
+                              print("Title: ${note.title}");
+                              print("Note: ${note.note}");
+                              print("Date: ${note.date}");
+                              print("Start Time: ${note.starttime}");
+                              print("End Time: ${note.endtime}");
+                              print("Reminder: ${note.reminder}");
+                              print("Is Completed: ${note.isCompleted}");
+                              // setState(() {
+                              //   title = "${note.title}";
+                              //   notebody = "${note.note}";
+                              //   starttime = "${note.starttime}";
+                              //   endtime = "${note.endtime}";
+                              // });
+                            }
+                          } else {
+                            print('No documents found for the specified date.');
+                          }
                         });
+                        // print(selectedbox.selectedBox);
+                        // print(formatDate(selectedbox.selectedBox));
+                        // print(selectedbox);
+                        // print(item);
                       },
                       child: Container(
                         height: 100,
                         width: 100,
                         decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Colors.deepPurple.withOpacity(1)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey
-                                    .withOpacity(0.2), // Shadow color
-                                spreadRadius: 2, // Spread radius
-                                blurRadius: 2, // Blur radius
-                                offset: const Offset(0, 3), // Offset
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(10),
-                            // color: Colors.deepPurple
-                            // color: color
-                            color: selectedbox == index
-                                ? Colors.deepPurple
-                                : Colors.transparent),
-                        child: const Padding(
+                          border: Border.all(
+                              color: Colors.deepPurple.withOpacity(1)),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  Colors.grey.withOpacity(0.2), // Shadow color
+                              spreadRadius: 2, // Spread radius
+                              blurRadius: 2, // Blur radius
+                              offset: const Offset(0, 3), // Offset
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(10),
+                          // color: Colors.deepPurple
+                          // color: color
+                          color: selectedBoxValue != null &&
+                                  selectedBoxValue['year'] == item['year'] &&
+                                  selectedBoxValue['month'] == item['month'] &&
+                                  selectedBoxValue['date'] == item['date'] &&
+                                  selectedBoxValue['dayOfWeek'] ==
+                                      item['dayOfWeek']
+                              ? Colors.deepPurple
+                              : Colors.deepPurple.withOpacity(0.4),
+                        ),
+                        child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                "AUG",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  // selectedbox == index
-                                  // ? Colors.white
-                                  // : Colors.white
+                              FittedBox(
+                                child: Text(
+                                  item['month'] != null ? item['month'] : '',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: themeprovider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.white,
+                                    // selectedbox == index
+                                    // ? Colors.white
+                                    // : Colors.white
+                                  ),
                                 ),
                               ),
                               Text(
-                                "23",
+                                item['date'] != null
+                                    ? item['date'].toString()
+                                    : '',
                                 style: TextStyle(
                                   fontSize: 20,
+                                  color: Colors.white,
 
                                   // selectedbox == index
                                   // ? Colors.white
                                   // : Colors.white
                                 ),
                               ),
-                              Text(
-                                "WED",
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  // selectedbox == index
-                                  // ? Colors.white
-                                  // : Colors.white
+                              FittedBox(
+                                child: Text(
+                                  item['dayOfWeek'] != null
+                                      ? item['dayOfWeek']
+                                      : '',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    // selectedbox == index
+                                    // ? Colors.white
+                                    // : Colors.white
+                                  ),
                                 ),
                               ),
                             ],
@@ -724,88 +443,150 @@ class _home_screenState extends State<home_screen> {
               child: ListView.builder(
                 itemCount: numbers.last,
                 itemBuilder: (context, index) {
+                  // final currentTask = tasks[index];
                   final color = boxcolors[index % boxcolors.length];
-                  
-                  return index != null ?  Padding(
-                    padding: const EdgeInsets.only(top: 5, bottom: 5),
-                    child: GestureDetector(
-                      onLongPress: () {
-                        showoption();
-                      },
-                      child: Container(
-                          height: 110,
-                          width: 300,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: color),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Title 1",
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Icon(
-                                          Icons.lock_clock,
-                                          size: 28,
-                                        ),
-                                        Text("    02:04 PM - 02:19 PM"),
-                                      ],
-                                    ),
-                                    Text(
-                                      "Note 1",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w300),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        height: 100,
-                                        width: 1,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(
-                                        width: 8,
-                                      ),
-                                      const RotatedBox(
-                                        quarterTurns:
-                                            3, // Set the number of clockwise quarter turns
+
+                  return index != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 5, bottom: 5),
+                          child: GestureDetector(
+                            onTap: () {
+                              // print(taskProvider.tasks);
+                            },
+                            onLongPress: () {
+                              showCupertinoModalPopup(
+                                context: context,
+                                builder: (context) {
+                                  return CupertinoActionSheet(
+                                    actions: [
+                                      CupertinoActionSheetAction(
                                         child: Text(
-                                          'TODO',
+                                          "Mark as Done 🙂",
                                           style: TextStyle(
-                                              fontSize:
-                                                  13), // Define the text style
+                                              color: Colors.grey.shade600),
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                      CupertinoActionSheetAction(
+                                        child: Text(
+                                          "Edit",
+                                          style: TextStyle(
+                                              color: Colors.grey.shade600),
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                      CupertinoActionSheetAction(
+                                        child: Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                              color: Colors.grey.shade600),
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                      CupertinoActionSheetAction(
+                                        child: Text(
+                                          "Cancel",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Material(
+                              child: Container(
+                                  height: 110,
+                                  width: 300,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: color),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Title " + index.toString(),
+                                              // currentTask.title,
+                                              style: const TextStyle(
+                                                  fontSize: 17,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Icon(
+                                                  Icons.lock_clock,
+                                                  size: 28,
+                                                  color: Colors.white,
+                                                ),
+                                                Text(
+                                                  "    02:04 PM - 02:19 PM",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              "Note 1",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w300),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Container(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                height: 100,
+                                                width: 1,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              const RotatedBox(
+                                                quarterTurns:
+                                                    3, // Set the number of clockwise quarter turns
+                                                child: Text(
+                                                  'TODO',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                  ), // Define the text style
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       )
                                     ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          )),
-                    ),
-                  ) : Text("Empty");
+                                  )),
+                            ),
+                          ),
+                        )
+                      : Text("Empty");
                 },
               ),
             ),
@@ -815,3 +596,6 @@ class _home_screenState extends State<home_screen> {
     );
   }
 }
+
+// showcupotinomodelpopup
+// CupertinoActionSheet

@@ -31,14 +31,20 @@ class ThemeProvider extends ChangeNotifier {
     sharedPref.setBool(THEMEKEY, isDarkMode);
   }
 
-  ThemeData getTheme() {
-    return isDarkMode ? ThemeData.dark(useMaterial3: true) : ThemeData.light(
-      useMaterial3: true,
-      
+  // ThemeData getTheme() {
+  //   return isDarkMode
+  //       ? ThemeData.dark(
+  //           useMaterial3: true,
 
-    );
+  //         )
+  //       : ThemeData.light(
+  //           useMaterial3: true,
+  //         );
+  // }
+  ThemeData getTheme() {
+    return isDarkMode ? CustomTheme.lightTheme : CustomTheme.darkTheme;
   }
-  
+
   IconData getThemeIcon() {
     return isDarkMode ? Icons.dark_mode_outlined : Icons.wb_sunny_outlined;
   }

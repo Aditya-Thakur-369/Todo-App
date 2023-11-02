@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo/providers/dateTime_provider.dart';
+import 'package:todo/providers/selectedbox_provider.dart';
+import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
+import 'package:todo/providers/time_provider.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:todo/utilities/sharedprefence.dart';
-import 'package:todo/utilities/theme_data.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -21,7 +23,18 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (context) => ThemeProvider(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => DatesProvider(),
+        ),
+         ChangeNotifierProvider(
+          create: (context) => SelectedBoxProvider(),
+        ),
+         ChangeNotifierProvider(
+          create: (context) => TimeProvider(),
+        ),ChangeNotifierProvider(
+          create: (context) => TaskProvider(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -59,7 +72,6 @@ class splash_screen extends StatefulWidget {
 
 class splash_screenState extends State<splash_screen> {
   static const String KEYLOGIN = 'login';
- 
 
   void stateChage() async {
     var SharedPref = await SharedPreferences.getInstance();
