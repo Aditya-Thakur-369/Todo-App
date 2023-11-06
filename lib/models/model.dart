@@ -60,23 +60,25 @@ class Usermodel {
 }
 
 class NoteModel {
-   String? id;
-   String? title;
-   String? note;
-   String? date;
-   String? starttime;
-   String? endtime;
-   String? reminder;
-   bool? isCompleted;
+  String? id;
+  String? title;
+  String? note;
+  String? date;
+  String? starttime;
+  String? endtime;
+  String? reminder;
+  String? completedTime;
+  bool? isCompleted;
 
   NoteModel({
     this.id,
-    this.title,
-    this.note,
-    this.date,
-    this.starttime,
-    this.endtime,
-    this.reminder,
+    required this.title,
+    required this.note,
+    required this.date,
+    required this.starttime,
+    required this.endtime,
+    required this.reminder,
+    this.completedTime,
     this.isCompleted = false,
   });
 
@@ -88,6 +90,7 @@ class NoteModel {
     String? starttime,
     String? endtime,
     String? reminder,
+    String? completedTime,
     bool? isCompleted,
   }) {
     return NoteModel(
@@ -98,12 +101,13 @@ class NoteModel {
       starttime: starttime ?? this.starttime,
       endtime: endtime ?? this.endtime,
       reminder: reminder ?? this.reminder,
+      completedTime: completedTime ?? this.completedTime,
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'title': title,
       'note': note,
@@ -111,57 +115,60 @@ class NoteModel {
       'starttime': starttime,
       'endtime': endtime,
       'reminder': reminder,
+      'completedTime': completedTime,
       'isCompleted': isCompleted,
     };
   }
 
   factory NoteModel.fromMap(Map<String, dynamic> map) {
     return NoteModel(
-      id: map['id'] as String?,
-      title: map['title'] as String?,
-      note: map['note'] as String?,
-      date: map['date'] as String?,
-      starttime: map['starttime'] as String?,
-      endtime: map['endtime'] as String?,
-      reminder: map['reminder'] as String?,
-      isCompleted: map['isCompleted'] as bool?,
+      id: map['id'] != null ? map['id'] as String : null,
+      title: map['title'] != null ? map['title'] as String : null,
+      note: map['note'] != null ? map['note'] as String : null,
+      date: map['date'] != null ? map['date'] as String : null,
+      starttime: map['starttime'] != null ? map['starttime'] as String : null,
+      endtime: map['endtime'] != null ? map['endtime'] as String : null,
+      reminder: map['reminder'] != null ? map['reminder'] as String : null,
+      completedTime: map['completedTime'] != null ? map['completedTime'] as String : null,
+      isCompleted: map['isCompleted'] != null ? map['isCompleted'] as bool : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory NoteModel.fromJson(String source) =>
-      NoteModel.fromMap(json.decode(source));
+  factory NoteModel.fromJson(String source) => NoteModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'NoteModel(id: $id, title: $title, note: $note, date: $date, starttime: $starttime, endtime: $endtime, reminder: $reminder, isCompleted: $isCompleted)';
+    return 'NoteModel(id: $id, title: $title, note: $note, date: $date, starttime: $starttime, endtime: $endtime, reminder: $reminder, completedTime: $completedTime, isCompleted: $isCompleted)';
   }
 
   @override
-  bool operator ==(Object other) {
+  bool operator ==(covariant NoteModel other) {
     if (identical(this, other)) return true;
-
-    return other is NoteModel &&
-        other.id == id &&
-        other.title == title &&
-        other.note == note &&
-        other.date == date &&
-        other.starttime == starttime &&
-        other.endtime == endtime &&
-        other.reminder == reminder &&
-        other.isCompleted == isCompleted;
+  
+    return 
+      other.id == id &&
+      other.title == title &&
+      other.note == note &&
+      other.date == date &&
+      other.starttime == starttime &&
+      other.endtime == endtime &&
+      other.reminder == reminder &&
+      other.completedTime == completedTime &&
+      other.isCompleted == isCompleted;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-        title.hashCode ^
-        note.hashCode ^
-        date.hashCode ^
-        starttime.hashCode ^
-        endtime.hashCode ^
-        reminder.hashCode ^
-        isCompleted.hashCode;
+      title.hashCode ^
+      note.hashCode ^
+      date.hashCode ^
+      starttime.hashCode ^
+      endtime.hashCode ^
+      reminder.hashCode ^
+      completedTime.hashCode ^
+      isCompleted.hashCode;
   }
 }

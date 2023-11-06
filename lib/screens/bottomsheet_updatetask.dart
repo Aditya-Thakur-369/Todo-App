@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ TextEditingController reminder = TextEditingController();
 
 AdditionslFeature feature = AdditionslFeature();
 
-final _formkey2 = GlobalKey<FormState>();
+final _formkey1 = GlobalKey<FormState>();
 
 List<String> options = [
   '5 Minutes early',
@@ -28,10 +30,12 @@ List<String> options = [
   '15 Minutes early',
   '30 Minutes early'
 ];
-Future<void> sendtask(BuildContext context) async {
+
+Future<void> Updatetask(String docId, BuildContext context) async {
   print("running program");
-  if (_formkey2.currentState != null && _formkey2.currentState!.validate()) {
+  if (_formkey1.currentState != null && _formkey1.currentState!.validate()) {
     NoteModel n = NoteModel(
+      id: docId,
       title: title.text,
       note: note.text,
       date: date.text,
@@ -40,26 +44,14 @@ Future<void> sendtask(BuildContext context) async {
       reminder: reminder.text,
     );
     try {
-      List<dynamic> result = await FirebaseStore.Savetask(n, date.text);
-      if (result[0] == true) {
-        // Extract the document ID from the result
-        String docId = result[1];
-
-        // Update the NoteModel with the retrieved document ID
-        n = n.copyWith(id: docId);
-
-        title.text = '';
-        note.text = '';
-        date.text = '';
-        starttime.text = '';
-        endtime.text = '';
-        reminder.text = '';
-        print("Done Data Saved");
+      bool result = await FirebaseStore.Updatask(
+          n, docId, FirebaseAuth.instance.currentUser!.uid);
+      if (result == true) {
+        // Navigator.of(context).pop();
         aftertrue(context);
-      } else if (result[0] is String) {
-        print(result[0]);
       } else {
-        print("Something went wrong ");
+        // Navigator.of(context).pop();
+        afterfalse(context);
       }
     } catch (e) {
       print("An error occurred: $e");
@@ -84,15 +76,69 @@ aftertrue(BuildContext context) {
   // Navigator.of(context).pop();
 }
 
-gettask(BuildContext context) {
+afterfalse(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(
+      "Unable to Add Task !",
+      style: TextStyle(
+          fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+    ),
+    backgroundColor: Colors.black,
+  ));
+  Navigator.of(context).pop();
+}
+
+
+Future<NoteModel?> GetTaskDetails(String docId) async {
+  try {
+    var querySnapshot = await FirebaseFirestore.instance
+        .collection("User")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Task")
+        .doc(
+            docId) // Use doc method instead of get for retrieving a specific document
+        .get();
+
+    if (!querySnapshot.exists) {
+      print('No document found for the specified ID.');
+      return null;
+    }
+
+    Map<String, dynamic> data = querySnapshot.data() as Map<String, dynamic>;
+    NoteModel task = NoteModel(
+      id: docId,
+      title: data['title'],
+      note: data['note'],
+      date: data['date'],
+      starttime: data['starttime'],
+      endtime: data['endtime'],
+      reminder: data['reminder'],
+      isCompleted: data['isCompleted'],
+    );
+
+    return task;
+  } catch (e) {
+    print('An error occurred: $e');
+    return null;
+  }
+}
+
+void updatesheet(BuildContext context, String docId, String uid) async {
+  GetTaskDetails(docId);
+  NoteModel? task = await GetTaskDetails(docId);
+  if (task != null) {
+    title.text = task.title ?? '';
+    note.text = task.note ?? '';
+    date.text = task.date ?? '';
+    starttime.text = task.starttime ?? '';
+    endtime.text = task.endtime ?? '';
+    reminder.text = task.reminder ?? '';
+  }
+
   final timeProvider = Provider.of<TimeProvider>(context, listen: false);
   final provider = context.read<SelectedBoxProvider>();
   String datevalue = provider.getFormattedDate().toString();
 
-  print(datevalue);
-
-  date.text = datevalue;
-  reminder.text = '5 Minutes early';
   showModalBottomSheet(
     isScrollControlled: true,
     isDismissible: true,
@@ -120,7 +166,7 @@ gettask(BuildContext context) {
                   height: 20,
                 ),
                 const Text(
-                  "Add Task",
+                  "Update Task",
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -132,7 +178,7 @@ gettask(BuildContext context) {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Form(
-                    key: _formkey2,
+                    key: _formkey1,
                     child: Column(
                       children: [
                         CustomTextFormField(
@@ -280,20 +326,21 @@ gettask(BuildContext context) {
                           height: 10,
                         ),
                         DropdownButtonFormField<String>(
-                          value: options[0],
+                          value: reminder.text,
                           icon: const Icon(Icons.arrow_downward),
                           iconSize: 24,
                           elevation: 16,
                           style: TextStyle(
-                              color:
-                                  Provider.of<ThemeProvider>(context).isDarkMode
-                                      ? Colors.black
-                                      : Colors.white),
+                            color:
+                                Provider.of<ThemeProvider>(context).isDarkMode
+                                    ? Colors.black
+                                    : Colors.white,
+                          ),
                           onChanged: (String? newValue) {
                             // Update the dropdown value when the user selects an option
-
-                              reminder.text = newValue!;
-
+                            // setState(() {
+                            //   reminder.text = newValue!;
+                            // });
                           },
                           items: options.map((String value) {
                             return DropdownMenuItem<String>(
@@ -313,11 +360,11 @@ gettask(BuildContext context) {
                           height: 15,
                         ),
                         CustomElevatedButton(
-                            message: "Add Task",
+                            message: "Update Task",
                             function: () async {
-                              if (_formkey2.currentState != null &&
-                                  _formkey2.currentState!.validate()) {
-                                await sendtask(context);
+                              if (_formkey1.currentState != null &&
+                                  _formkey1.currentState!.validate()) {
+                                await Updatetask(docId, context);
                               }
                             }),
                       ],
