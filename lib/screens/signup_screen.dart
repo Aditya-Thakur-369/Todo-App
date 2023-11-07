@@ -19,7 +19,7 @@ class signup_screen extends StatefulWidget {
 }
 
 class _signup_screenState extends State<signup_screen> {
-  final _formkey = GlobalKey<FormState>();
+  final _formkey1 = GlobalKey<FormState>();
   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
@@ -27,65 +27,36 @@ class _signup_screenState extends State<signup_screen> {
 
   Future<void> movetosignup() async {
     print("Success");
-    if (_formkey.currentState != null && _formkey.currentState!.validate()) {
-      // showDialog(
-      //   barrierDismissible: false,
-      //   context: context,
-      //   builder: (context) {
-      //     return const AlertDialog(
-      //       content: SizedBox(
-      //         height: 42,
-      //         width: 42,
-      //         child: Row(
-      //           children: [
-      //             SizedBox(
-      //               width: 20,
-      //             ),
-      //             Text("Loading ... "),
-      //             SizedBox(
-      //               width: 40,
-      //             ),
-      //             CircularProgressIndicator(
-      //               color: Colors.black,
-      //             ),
-      //           ],
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // );
-      // try {
+    if (_formkey1.currentState != null && _formkey1.currentState!.validate()) {
       var result = await FirebaseStore.createuser(email.text, pass.text.trim());
       if (result == true) {
         var SharedPref = await SharedPreferences.getInstance();
         SharedPref.setBool(splash_screenState.KEYLOGIN, true);
         await UserData.userdata(
             FirebaseAuth.instance.currentUser!.uid, email.text, name.text);
-         Navigator.push(
-                                context,
-                                PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        const signin_screen(),
-                                    transitionsBuilder: (context, animation,
-                                        secondaryAnimation, child) {
-                                      const begin = Offset(0.0, 1.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.easeInBack;
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const home_screen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const begin = Offset(0.0, 1.0);
+              const end = Offset.zero;
+              const curve = Curves.ease;
 
-                                      final tween =
-                                          Tween(begin: begin, end: end)
-                                              .chain(CurveTween(curve: curve));
-                                      final curvedAnimation = CurvedAnimation(
-                                        parent: animation,
-                                        curve: curve,
-                                      );
-                                      return SlideTransition(
-                                        position:
-                                            tween.animate(curvedAnimation),
-                                        child: child,
-                                      );
-                                    }));
+              var tween =
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(
+                position: offsetAnimation,
+                child: child,
+              );
+            },
+          ),
+        );
+
         print("Succes");
       } else if (result is String) {
         String errorCode = result;
@@ -126,7 +97,7 @@ class _signup_screenState extends State<signup_screen> {
     return Scaffold(
       body: SafeArea(
         child: Form(
-          key: _formkey,
+          key: _formkey1,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -142,13 +113,12 @@ class _signup_screenState extends State<signup_screen> {
                             alignment: Alignment.topRight,
                             child: IconButton(
                                 onPressed: () {
-                                   themeprovider.toggleTheme();
+                                  themeprovider.toggleTheme();
                                 },
-                                icon: 
-                                    Icon(
-                                       themeprovider.getThemeIcon(),
-                                        size: 25,
-                                      )))
+                                icon: Icon(
+                                  themeprovider.getThemeIcon(),
+                                  size: 25,
+                                )))
                       ],
                     ),
                   ),
@@ -165,7 +135,10 @@ class _signup_screenState extends State<signup_screen> {
                           labelText: "Name",
                           hintText: "Aditya Chauhan",
                           controller: name,
-                          sur: Icon(Icons.abc_outlined,size: 35,),
+                          sur: Icon(
+                            Icons.abc_outlined,
+                            size: 35,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Name can not be empty";
@@ -181,7 +154,10 @@ class _signup_screenState extends State<signup_screen> {
                           labelText: "Email",
                           hintText: "aditya123@gmail.com",
                           controller: email,
-                          sur: Icon(Icons.email_outlined,size: 30,),
+                          sur: Icon(
+                            Icons.email_outlined,
+                            size: 30,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Email can not be empty";
@@ -200,11 +176,14 @@ class _signup_screenState extends State<signup_screen> {
                           hintText: "Aditya123@2266",
                           controller: pass,
                           obscureText: true,
-                          sur: Icon(Icons.password_outlined,size: 30,),
+                          sur: Icon(
+                            Icons.password_outlined,
+                            size: 30,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Password can not be empty";
-                            } else if (value.length > 6) {
+                            } else if (value.length < 6) {
                               return "Password Should Be Greater Then 6 Digits";
                             } else {
                               return null;
@@ -219,7 +198,10 @@ class _signup_screenState extends State<signup_screen> {
                           hintText: "Aditya123@2266",
                           controller: cpass,
                           obscureText: true,
-                          sur: Icon(Icons.password_outlined,size: 30,),
+                          sur: Icon(
+                            Icons.password_outlined,
+                            size: 30,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Password can not be empty";

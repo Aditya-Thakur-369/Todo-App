@@ -41,14 +41,14 @@ class _reset_password_screenState extends State<reset_password_screen> {
                             size: 25,
                           ))),
                   SvgPicture.asset('assets/images/sign_in.svg'),
-                  SizedBox(
+                 const SizedBox(
                     height: 20,
                   ),
                   Text(
                     "Check Your mail !!",
                     style: TextStyle(fontSize: 20, color: Colors.grey[500]),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   CustomElevatedButton(

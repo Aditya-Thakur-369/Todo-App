@@ -22,7 +22,7 @@ TextEditingController reminder = TextEditingController();
 
 AdditionslFeature feature = AdditionslFeature();
 
-final _formkey1 = GlobalKey<FormState>();
+final _formkey3 = GlobalKey<FormState>();
 
 List<String> options = [
   '5 Minutes early',
@@ -33,7 +33,7 @@ List<String> options = [
 
 Future<void> Updatetask(String docId, BuildContext context) async {
   print("running program");
-  if (_formkey1.currentState != null && _formkey1.currentState!.validate()) {
+  if (_formkey3.currentState != null && _formkey3.currentState!.validate()) {
     NoteModel n = NoteModel(
       id: docId,
       title: title.text,
@@ -178,7 +178,7 @@ void updatesheet(BuildContext context, String docId, String uid) async {
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Form(
-                    key: _formkey1,
+                    key: _formkey3,
                     child: Column(
                       children: [
                         CustomTextFormField(
@@ -362,8 +362,8 @@ void updatesheet(BuildContext context, String docId, String uid) async {
                         CustomElevatedButton(
                             message: "Update Task",
                             function: () async {
-                              if (_formkey1.currentState != null &&
-                                  _formkey1.currentState!.validate()) {
+                              if (_formkey3.currentState != null &&
+                                  _formkey3.currentState!.validate()) {
                                 await Updatetask(docId, context);
                               }
                             }),

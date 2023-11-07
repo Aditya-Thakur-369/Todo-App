@@ -22,10 +22,10 @@ class signin_screen extends StatefulWidget {
 class _signin_screenState extends State<signin_screen> {
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
-  final _formkey = GlobalKey<FormState>();
+  final _formkey0 = GlobalKey<FormState>();
 
   Future<void> movetosignin() async {
-    if (_formkey.currentState != null && _formkey.currentState!.validate()) {
+    if (_formkey0.currentState != null && _formkey0.currentState!.validate()) {
       var result =
           await FirebaseStore.signinuser(email.text.trim(), pass.text.trim());
       if (result == true) {
@@ -128,7 +128,7 @@ class _signin_screenState extends State<signin_screen> {
               Container(
                 padding: const EdgeInsets.only(left: 10, right: 10),
                 child: Form(
-                  key: _formkey,
+                  key: _formkey0,
                   child: Column(
                     children: [
                       const SizedBox(

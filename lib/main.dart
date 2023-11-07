@@ -11,13 +11,16 @@ import 'package:todo/providers/time_provider.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:todo/utilities/notification_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  NotificationService().initNotification();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(
     MultiProvider(
       providers: [
@@ -27,12 +30,13 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => DatesProvider(),
         ),
-         ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (context) => SelectedBoxProvider(),
         ),
-         ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (context) => TimeProvider(),
-        ),ChangeNotifierProvider(
+        ),
+        ChangeNotifierProvider(
           create: (context) => TaskProvider(),
         ),
       ],

@@ -1,12 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-class NotificationSerice {
+class NotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<void> initNotification() async {
+  initNotification() async {
     AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('launcher.png');
+        AndroidInitializationSettings('launcher');
 
     var initializationSettingsIOS = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -17,7 +19,33 @@ class NotificationSerice {
 
     var initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {});
+
+    await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: (details) async {});
+  }
+
+  notificationsDetails() {
+    return const NotificationDetails(
+        android: AndroidNotificationDetails('channelId', 'channelName',
+            playSound: true,
+            priority: Priority.high,
+            importance: Importance.max,
+            icon: 'launcher'),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ));
+  }
+
+  Future shownotification(
+      {id = 0, String? title, String? body, String? payload}) async {
+    try {
+      return _flutterLocalNotificationsPlugin.show(
+          id, title, body, await notificationsDetails());
+    } catch (e) {
+      print(e);
+    }
   }
 
 
