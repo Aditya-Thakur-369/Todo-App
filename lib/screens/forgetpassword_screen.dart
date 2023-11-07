@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/providers/theme_provider.dart';
 import 'package:todo/screens/reset_password.dart';
@@ -20,7 +21,9 @@ class forgetpassword_screen extends StatefulWidget {
 class _forgetpassword_screenState extends State<forgetpassword_screen> {
   TextEditingController email = TextEditingController();
   final _formkey = GlobalKey<FormState>();
-   
+
+  @override
+  void dispose() {}
 
   Future<void> sendotp() async {
     if (_formkey.currentState != null && _formkey.currentState!.validate()) {
@@ -33,6 +36,7 @@ class _forgetpassword_screenState extends State<forgetpassword_screen> {
             MaterialPageRoute(
               builder: (context) => reset_password_screen(),
             ));
+        // context.go('/reset_password_screen');
       } else if (result is String) {
         String errorCode = result;
         print("----------------------------" + errorCode);
@@ -47,25 +51,27 @@ class _forgetpassword_screenState extends State<forgetpassword_screen> {
           CustomSnackBar.showSnackBar(
               context, "Ok", () => null, "Pleace Check Your Internet ");
         } else if (errorCode == "user-not-found") {
-          CustomSnackBar.showSnackBar(
+          CustomSnackBar.showSnackBar(context, "Create", () {
+            return Navigator.push(
               context,
-              "Create",
-              () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => signup_screen(),
-                  )),
-              "Account Not Found ");
+              MaterialPageRoute(
+                builder: (context) => signup_screen(),
+              ));
+            // return context.go('/signup_screen');
+          }, "Account Not Found ");
         } else {
           CustomSnackBar.showSnackBar(
             context,
             "Email Not Found ",
-            () => Navigator.push(
+            () {
+              return Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => signin_screen(),
-              ),
-            ),
+                MaterialPageRoute(
+                  builder: (context) => signin_screen(),
+                ),
+              );
+              // context.go('/signin_screen');
+            },
             "Create an Account",
           );
         }
@@ -123,7 +129,10 @@ class _forgetpassword_screenState extends State<forgetpassword_screen> {
                       labelText: "Email",
                       hintText: "aditya123@gmail.com",
                       controller: email,
-                      sur: Icon(Icons.email_outlined,size: 30,),
+                      sur: Icon(
+                        Icons.email_outlined,
+                        size: 30,
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Email can not be empty";

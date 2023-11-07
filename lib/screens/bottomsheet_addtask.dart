@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,16 @@ TextEditingController date = TextEditingController();
 TextEditingController starttime = TextEditingController();
 TextEditingController endtime = TextEditingController();
 TextEditingController reminder = TextEditingController();
+
+@override
+void dispose() {
+  title.dispose();
+  note.dispose();
+  date.dispose();
+  starttime.dispose();
+  endtime.dispose();
+  reminder.dispose();
+}
 
 AdditionslFeature feature = AdditionslFeature();
 
@@ -292,8 +304,7 @@ gettask(BuildContext context) {
                           onChanged: (String? newValue) {
                             // Update the dropdown value when the user selects an option
 
-                              reminder.text = newValue!;
-
+                            reminder.text = newValue!;
                           },
                           items: options.map((String value) {
                             return DropdownMenuItem<String>(

@@ -53,11 +53,13 @@ class _reset_password_screenState extends State<reset_password_screen> {
                   ),
                   CustomElevatedButton(
                     message: "Back To Sign In",
-                    function: () => Navigator.push(
+                    function: () {
+                      return Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => signin_screen(),
-                        )),
+                        ));
+                    },
                   )
                 ],
               ),

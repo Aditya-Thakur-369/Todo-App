@@ -24,6 +24,16 @@ AdditionslFeature feature = AdditionslFeature();
 
 final _formkey3 = GlobalKey<FormState>();
 
+@override
+void dispose() {
+  title.dispose();
+  note.dispose();
+  date.dispose();
+  starttime.dispose();
+  endtime.dispose();
+  reminder.dispose();
+}
+
 List<String> options = [
   '5 Minutes early',
   '10 Minutes early',
@@ -362,10 +372,10 @@ void updatesheet(BuildContext context, String docId, String uid) async {
                         CustomElevatedButton(
                             message: "Update Task",
                             function: () async {
-                              if (_formkey3.currentState != null &&
-                                  _formkey3.currentState!.validate()) {
+                              // if (_formkey3.currentState != null &&
+                              //     _formkey3.currentState!.validate()) {
                                 await Updatetask(docId, context);
-                              }
+                              // }
                             }),
                       ],
                     ),

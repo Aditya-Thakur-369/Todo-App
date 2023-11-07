@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
@@ -29,6 +30,7 @@ class _signin_screenState extends State<signin_screen> {
       var result =
           await FirebaseStore.signinuser(email.text.trim(), pass.text.trim());
       if (result == true) {
+        // context.go('/');
         Navigator.push(
             context,
             PageRouteBuilder(
@@ -186,6 +188,7 @@ class _signin_screenState extends State<signin_screen> {
                         padding: const EdgeInsets.only(left: 220),
                         child: TextButton(
                           onPressed: () {
+                            // context.go('/forgetpassword_screen');
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -214,6 +217,7 @@ class _signin_screenState extends State<signin_screen> {
                                   builder: (context) => const signup_screen(),
                                 ),
                               );
+                              // context.go('/signup_screen');
                             },
                             child: const Text("Sign Up"),
                           ),

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,7 @@ class _home_screenState extends State<home_screen> {
   String? email;
 
   List<NoteModel> tasks = [];
+  List<NoteModel> donetasks = [];
 
   List<Color> boxcolors = [
     Colors.deepPurple,
@@ -92,6 +94,7 @@ class _home_screenState extends State<home_screen> {
               },
             ));
       }
+      // context.go('/signin_screen');
     });
   }
 
@@ -126,6 +129,7 @@ class _home_screenState extends State<home_screen> {
       selectedBoxProvider.updateSelectedBox(dateList[0]);
       checkmail();
       todaydate();
+      todaydonedate();
     });
   }
 
@@ -136,13 +140,14 @@ class _home_screenState extends State<home_screen> {
 
     tasks = await taskProvider.fetchTasks(formattedDate);
   }
-  //   void todaydonedate() async {
-  //   final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-  //   DateTime now = DateTime.now();
-  //   String formattedDate = DateFormat('d MMM y').format(now);
 
-  //   donetasks = await taskProvider.fetchdoneTasks(formattedDate);
-  // }
+  void todaydonedate() async {
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('d MMM y').format(now);
+
+    donetasks = await taskProvider.fetchdoneTasks(formattedDate);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,6 +179,7 @@ class _home_screenState extends State<home_screen> {
       print(donetasks);
     }
 
+    bool notificationOn = false;
     final screenwidth = MediaQuery.of(context).size.width;
     final screenhight = MediaQuery.of(context).size.height;
     final themeprovider = Provider.of<ThemeProvider>(context);
@@ -194,10 +200,15 @@ class _home_screenState extends State<home_screen> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            NotificationService().shownotification(
-                              body: "this is body",
-                              title: "this is title",
-                            );
+                            try {
+                              NotificationService().shownotification(
+                                body: "this is body",
+                                title: "this is title",
+                              );
+                            } catch (e) {
+                              print('e');
+                            }
+
                             showCupertinoModalPopup(
                               context: context,
                               builder: (context) {
@@ -303,12 +314,12 @@ class _home_screenState extends State<home_screen> {
                                             },
                                           ),
                                           CupertinoActionSheetAction(
-                                            child: const Row(
+                                            child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text(
+                                                const Text(
                                                   'Reminder',
                                                   style: TextStyle(
                                                       fontSize: 20,
@@ -316,10 +327,19 @@ class _home_screenState extends State<home_screen> {
                                                       fontWeight:
                                                           FontWeight.w400),
                                                 ),
-                                                Icon(
-                                                  Icons
-                                                      .notifications_active_outlined,
-                                                  color: Colors.white,
+                                                // Icon(
+                                                //   Icons
+                                                //       .notifications_active_outlined,
+                                                //   color: Colors.white,
+                                                // ),
+                                                CupertinoSwitch(
+                                                  value: notificationOn,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      notificationOn = value;
+                                                    });
+                                                  },
+                                                  activeColor: Colors.purple,
                                                 ),
                                               ],
                                             ),
@@ -1280,15 +1300,16 @@ class _home_screenState extends State<home_screen> {
                                                                         mainAxisAlignment:
                                                                             MainAxisAlignment.start,
                                                                         children: [
-                                                                          const Icon(
-                                                                            Icons.lock_clock,
-                                                                            size:
-                                                                                28,
-                                                                            color:
-                                                                                Colors.white,
+                                                                          Text(
+                                                                            "Task Completed at : ",
+                                                                            style: TextStyle(
+                                                                                fontSize: 15,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.white),
                                                                           ),
                                                                           SizedBox(
-                                                                            width: 5,
+                                                                            width:
+                                                                                5,
                                                                           ),
                                                                           Text(
                                                                             // "    02:04 PM - 02:19 PM",
@@ -1303,25 +1324,25 @@ class _home_screenState extends State<home_screen> {
                                                                         ],
                                                                       ),
                                                                       SizedBox(
-                                                                        height: 10,
+                                                                        height:
+                                                                            10,
                                                                       ),
                                                                       SingleChildScrollView(
                                                                         scrollDirection:
                                                                             Axis.vertical,
                                                                         child:
                                                                             Row(
-                                                                              children: [
-                                                                                Text("Title : "),
-                                                                                Text( 
-                                                                          currentdoneTask.title ??
-                                                                                  "",
-                                                                          style: const TextStyle(
-                                                                                  fontSize: 17,
-                                                                                  color: Colors.white,
-                                                                                  fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                              ],
+                                                                          children: [
+                                                                            Text(
+                                                                              "Title : ",
+                                                                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
                                                                             ),
+                                                                            Text(
+                                                                              currentdoneTask.title ?? "",
+                                                                              style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
+                                                                            ),
+                                                                          ],
+                                                                        ),
                                                                       ),
                                                                     ],
                                                                   ),
@@ -1525,8 +1546,9 @@ class _home_screenState extends State<home_screen> {
                                                         style: TextStyle(
                                                             fontSize: 15,
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.white),
                                                       ),
                                                       Text(
                                                         // "    02:04 PM - 02:19 PM",

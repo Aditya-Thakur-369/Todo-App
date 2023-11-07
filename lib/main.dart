@@ -59,9 +59,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: themeprovider.getTheme(),
-      // theme: ThemeData.light(),
-      // darkTheme: ThemeData.dark(),
-      // themeMode: ThemeMode.system,
+      // routeInformationProvider: router.routeInformationProvider,
+      // routeInformationParser: router.routeInformationParser,
+      // routerDelegate: router.routerDelegate,
       home: splash_screen(),
     );
   }
@@ -84,18 +84,27 @@ class splash_screenState extends State<splash_screen> {
     Timer(Duration(seconds: 3), () {
       if (isLoggedIn != null) {
         if (isLoggedIn) {
-          Navigator.pushReplacement(
+          // context.go('/home_screen');
+          Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => home_screen(),
               ));
         } else {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => signin_screen()));
+          // context.go('/signin_screen');
+           Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => signin_screen(),
+              ));
         }
       } else {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => signin_screen()));
+        // context.go('/signin_screen');
+         Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => signin_screen(),
+              ));
       }
     });
   }

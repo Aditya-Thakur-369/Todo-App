@@ -1,12 +1,12 @@
 import 'dart:math';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  initNotification() async {
+  Future initNotification() async {
+    // Initialize the plugin on both Android and iOS
     AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('launcher');
 
@@ -17,11 +17,12 @@ class NotificationService {
       onDidReceiveLocalNotification: (id, title, body, payload) async {},
     );
 
-    var initializationSettings = InitializationSettings(
+    InitializationSettings initializationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: (details) async {});
+        onDidReceiveNotificationResponse:
+            (NotificationResponse notificationResponse) async {});
   }
 
   notificationsDetails() {
@@ -39,7 +40,10 @@ class NotificationService {
   }
 
   Future shownotification(
-      {id = 0, String? title, String? body, String? payload}) async {
+      {int id = 0, String? title, String? body, String? payload}) async {
+    // Initialize the plugin before calling shownotification()
+    await initNotification();
+
     try {
       return _flutterLocalNotificationsPlugin.show(
           id, title, body, await notificationsDetails());
@@ -47,6 +51,4 @@ class NotificationService {
       print(e);
     }
   }
-
-
 }

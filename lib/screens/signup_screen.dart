@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
@@ -34,6 +35,9 @@ class _signup_screenState extends State<signup_screen> {
         SharedPref.setBool(splash_screenState.KEYLOGIN, true);
         await UserData.userdata(
             FirebaseAuth.instance.currentUser!.uid, email.text, name.text);
+
+        // context.go('/');
+
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -82,10 +86,11 @@ class _signup_screenState extends State<signup_screen> {
         //         )));
         // });
       } else {
+        // context.go('/signup_screen');
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const signup_screen(),
+              builder: (context) => signin_screen(),
             ));
       }
     }
@@ -262,12 +267,7 @@ class _signup_screenState extends State<signup_screen> {
                             const Text("Create a new account ? "),
                             TextButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const signin_screen()),
-                                );
+                                context.go('/signin_screen');
                               },
                               child: const Text("Sign In"),
                             ),
