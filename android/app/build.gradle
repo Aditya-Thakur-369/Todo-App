@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.todo"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -67,7 +67,4 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
-    classpath 'com.android.tools.build:gradle:4.1.0'
-    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21'
-    classpath 'com.google.gms:google-services:4.3.10'
 }
