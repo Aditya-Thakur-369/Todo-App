@@ -1,10 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:todo/models/model.dart';
-import 'package:todo/screens/bottomsheet_addtask.dart';
-import 'package:todo/screens/home_screen.dart';
 import 'package:todo/utilities/notification_service.dart';
 
 final FirebaseFirestore store = FirebaseFirestore.instance;

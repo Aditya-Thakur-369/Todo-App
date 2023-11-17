@@ -1,31 +1,24 @@
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo/main.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:todo/models/model.dart';
 import 'package:todo/providers/dateTime_provider.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
 import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
-import 'package:todo/routes/router_name.dart';
 import 'package:todo/screens/bottomsheet_addtask.dart';
 import 'package:todo/screens/bottomsheet_profile.dart';
 import 'package:todo/screens/bottomsheet_updatetask.dart';
-
-import 'package:todo/screens/show_history.dart';
-import 'package:todo/screens/signin_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
 import 'package:todo/utilities/notification_service.dart';
-import 'package:share_plus/share_plus.dart';
 
 class home_screen extends StatefulWidget {
   const home_screen({super.key});
@@ -57,7 +50,7 @@ class _home_screenState extends State<home_screen> {
         //connection is mobile data network
         setState(() {
           isoffline = false;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
               'You\'re Back agian 👍🏻',
               style: TextStyle(color: Colors.white),
@@ -69,7 +62,7 @@ class _home_screenState extends State<home_screen> {
         //connection is from wifi
         setState(() {
           isoffline = false;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('You\'re Back agian 👍🏻',
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.green,
@@ -79,7 +72,7 @@ class _home_screenState extends State<home_screen> {
         //connection is from wired connection
         setState(() {
           isoffline = false;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('You\'re Back agian 👍🏻',
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.green,
@@ -89,7 +82,7 @@ class _home_screenState extends State<home_screen> {
         //connection is from bluetooth threatening
         setState(() {
           isoffline = false;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('You\'re Back agian 👍🏻',
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.green,
@@ -159,7 +152,7 @@ class _home_screenState extends State<home_screen> {
     checkinternet(context);
     // getcurrentmonth();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final selectedBoxProvider = context.read<SelectedBoxProvider>();
       final datesProvider = context.read<DatesProvider>();
       final dates = DatesProvider();
@@ -247,7 +240,7 @@ class _home_screenState extends State<home_screen> {
       body: SafeArea(
           child: SingleChildScrollView(
         child: Column(children: [
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height / 12,
             width: double.infinity,
             child: Padding(
@@ -436,8 +429,7 @@ class _home_screenState extends State<home_screen> {
                           borderRadius: BorderRadius.circular(10),
                           // color: Colors.deepPurple
                           // color: color
-                          color: selectedBoxValue != null &&
-                                  selectedBoxValue['year'] == item['year'] &&
+                          color: selectedBoxValue['year'] == item['year'] &&
                                   selectedBoxValue['month'] == item['month'] &&
                                   selectedBoxValue['date'] == item['date'] &&
                                   selectedBoxValue['dayOfWeek'] ==
@@ -452,7 +444,7 @@ class _home_screenState extends State<home_screen> {
                             children: [
                               FittedBox(
                                 child: Text(
-                                  item['month'] != null ? item['month'] : '',
+                                  item['month'] ?? '',
                                   style: TextStyle(
                                     fontSize: 20,
                                     color: themeprovider.isDarkMode
@@ -479,9 +471,7 @@ class _home_screenState extends State<home_screen> {
                               ),
                               FittedBox(
                                 child: Text(
-                                  item['dayOfWeek'] != null
-                                      ? item['dayOfWeek']
-                                      : '',
+                                  item['dayOfWeek'] ?? '',
                                   style: const TextStyle(
                                     fontSize: 20,
                                     color: Colors.white,
@@ -971,7 +961,7 @@ class _home_screenState extends State<home_screen> {
                           },
                         ),
                       )
-                    : Container(
+                    : SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: screenhight / 1.9,
                         child: Center(
@@ -1034,7 +1024,7 @@ class _home_screenState extends State<home_screen> {
                     ),
                   ),
                 )
-              : SizedBox(),
+              : const SizedBox(),
           const SizedBox(
             height: 20,
           ),
@@ -1124,14 +1114,14 @@ class _home_screenState extends State<home_screen> {
                                                                         mainAxisAlignment:
                                                                             MainAxisAlignment.start,
                                                                         children: [
-                                                                          Text(
+                                                                          const Text(
                                                                             "Task Completed at : ",
                                                                             style: TextStyle(
                                                                                 fontSize: 15,
                                                                                 fontWeight: FontWeight.bold,
                                                                                 color: Colors.white),
                                                                           ),
-                                                                          SizedBox(
+                                                                          const SizedBox(
                                                                             width:
                                                                                 5,
                                                                           ),
@@ -1147,7 +1137,7 @@ class _home_screenState extends State<home_screen> {
                                                                           ),
                                                                         ],
                                                                       ),
-                                                                      SizedBox(
+                                                                      const SizedBox(
                                                                         height:
                                                                             10,
                                                                       ),
@@ -1157,7 +1147,7 @@ class _home_screenState extends State<home_screen> {
                                                                         child:
                                                                             Row(
                                                                           children: [
-                                                                            Text(
+                                                                            const Text(
                                                                               "Title : ",
                                                                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
                                                                             ),
@@ -1387,7 +1377,7 @@ class _home_screenState extends State<home_screen> {
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
                                                     children: [
-                                                      Text(
+                                                      const Text(
                                                         "Task Completed at : ",
                                                         style: TextStyle(
                                                             fontSize: 15,
@@ -1479,7 +1469,7 @@ class _home_screenState extends State<home_screen> {
 
                     // second Container strts from here
                   ))
-              : SizedBox(),
+              : const SizedBox(),
         ]),
       )),
     );
