@@ -8,6 +8,7 @@ import 'package:todo/screens/forgetpassword_screen.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signup_screen.dart'; // Make sure to import the correct shared_preference file
 import 'package:todo/utilities/firebase_database.dart';
+import 'package:todo/utilities/notification_service.dart';
 import 'package:todo/utilities/sharedprefence.dart';
 import 'package:todo/utilities/user_data.dart';
 import 'package:todo/widgets/custom_widgets.dart';
@@ -210,7 +211,8 @@ class _signin_screenState extends State<signin_screen> {
                           ),
                           const Text("Create a new account ? "),
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                         
 
                               Navigator.push(
                                 context,
@@ -218,7 +220,6 @@ class _signin_screenState extends State<signin_screen> {
                                   builder: (context) => const signup_screen(),
                                 ),
                               );
-
                             },
                             child: const Text("Sign Up"),
                           ),

@@ -260,15 +260,23 @@ class _home_screenState extends State<home_screen> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            try {
-                              NotificationService().showNotification(
-                                body: "this is body",
-                                title: "this is title",
-                              );
-                            } catch (e) {
-                              print('e');
-                            }
+                              //     try {
+                              //   NotificationService().showNotification(
+                              //     body: "this is body",
+                              //     title: "this is title",
+                              //   );
+                              // } catch (e) {
+                              //   print('e');
+                              // }
 
+                              await NotificationService().scheduleNotification(
+                                id: 2,
+                                title: 'Notification Title',
+                                body: 'Notification Body',
+                                scheduledTime:
+                                    DateTime.now().add(Duration(seconds: 3)),
+                                payload: 'Some payload data',
+                              );
                             showOptions(
                                 context, name.toString(), email.toString());
                           },
@@ -582,23 +590,24 @@ class _home_screenState extends State<home_screen> {
                                                                           .height /
                                                                       8),
                                                               child:
-                                                                  SingleChildScrollView(
-                                                                scrollDirection:
-                                                                    Axis.horizontal,
-                                                                child: Text(
-                                                                  "Title :  ${currentTask.title ?? ""}",
-                                                                  style: const TextStyle(
-                                                                      letterSpacing:
-                                                                          2,
-                                                                      fontSize:
-                                                                          20,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                              ),
+                                                                  ListView(
+                                                                    shrinkWrap: true,
+                                                                    children: [
+                                                                      Text(
+                                                                      "Title :  ${currentTask.title ?? ""}",
+                                                                      style: const TextStyle(
+                                                                          letterSpacing:
+                                                                              2,
+                                                                          fontSize:
+                                                                              20,
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontWeight:
+                                                                              FontWeight
+                                                                                  .bold),
+                                                                    ),
+                                                                    ],
+                                                                  ),
                                                             ),
                                                           ),
                                                           FittedBox(
@@ -1066,278 +1075,192 @@ class _home_screenState extends State<home_screen> {
                                       print(currentdoneTask);
                                     },
                                     onLongPress: () {
-                                      showCupertinoModalPopup(
-                                        context: context,
-                                        builder: (context) {
-                                          return CupertinoActionSheet(
-                                            actions: [
-                                              Material(
-                                                child: Container(
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            3,
-                                                    width: 300,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        color: color),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(8.0),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    "Task Completed at : ",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            15,
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                        color: Colors
-                                                                            .white),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 5,
-                                                                  ),
-                                                                  Text(
-                                                                    // "    02:04 PM - 02:19 PM",
-                                                                    currentdoneTask
-                                                                            .completedTime ??
-                                                                        '',
+                showCupertinoModalPopup(
+  context: context,
+  builder: (context) {
+    return CupertinoActionSheet(
+      actions: [
+        Material(
+          child: Container(
+            height: MediaQuery.of(context).size.height / 3,
+            width: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: color,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Task Completed at : ",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            currentdoneTask.completedTime ?? '',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width - 100,
+                          maxHeight: MediaQuery.of(context).size.height / 8,
+                        ),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            Text(
+                            "Title :  ${currentdoneTask.title ?? ""}",
+                            style: const TextStyle(
+                              letterSpacing: 2,
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          ]
+                        ),
+                      ),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width - 100,
+                          maxHeight: MediaQuery.of(context).size.height / 10,
+                        ),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            Text(
+                              currentdoneTask.note ?? "",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 1000,
+                          width: 1,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        const RotatedBox(
+                          quarterTurns: 3,
+                          child: Text(
+                            'TODO',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 30),
+        CupertinoActionSheetAction(
+          child: Text(
+            "Share Task",
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+          onPressed: () async {
+            await Share.share(
+              "🚀 Task Details 🚀\n\n"
+              "📌 Task Title: ${currentdoneTask.title}\n"
+              "📋 Task Description: ${currentdoneTask.note}\n"
+              "🗓 Task Date: ${currentdoneTask.date}\n"
+              "⏰ Task Start Time: ${currentdoneTask.starttime}\n"
+              "🎉 Task Completion Time: ${currentdoneTask.completedTime}\n\n"
+              "✅ Task Accomplished! Dive into seamless task management with the cutting-edge Todo app!\n\n"
+              "🌟 Discover the endless possibilities of the Todo app on GitHub. Let's simplify your task management journey together.\n"
+              "GitHub Link: https://github.com/Aditya-Thakur-369/Todo-App",
+              subject: "📅 Task Details from the Todo App 📝",
+            );
+          },
+        ),
+        CupertinoActionSheetAction(
+          child: Text(
+            "Delete",
+            style: TextStyle(color: Colors.grey.shade600),
+          ),
+          onPressed: () async {
+            bool rs = await FirebaseStore.DeleteTask(
+              currentdoneTask.id.toString(),
+              FirebaseAuth.instance.currentUser!.uid,
+            );
+            if (rs == true) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const home_screen(),
+                ),
+              );
+              final scaffoldContext = ScaffoldMessenger.of(context);
+              scaffoldContext.showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    "Task Deleted Successfully ! ",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  backgroundColor: Colors.black,
+                ),
+              );
+            } else {
+              print("Something is wrong while deleting the Task");
+            }
+          },
+        ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        isDefaultAction: true,
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text(
+          "Cancel",
+          style: TextStyle(color: Colors.red),
+        ),
+      ),
+    );
+  },
+);
 
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              FittedBox(
-                                                                child:
-                                                                    Container(
-                                                                  color: Colors
-                                                                      .red,
-                                                                  constraints:
-                                                                      BoxConstraints(
-                                                                    maxWidth: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width -
-                                                                        100,
-                                                                    maxHeight: MediaQuery.of(context)
-                                                                            .size
-                                                                            .height /
-                                                                        10,
-                                                                  ),
-                                                                  child:
-                                                                      SingleChildScrollView(
-                                                                    scrollDirection:
-                                                                        Axis.horizontal,
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Text(
-                                                                          "Title : ",
-                                                                          style: TextStyle(
-                                                                              fontSize: 15,
-                                                                              fontWeight: FontWeight.bold,
-                                                                              color: Colors.white),
-                                                                        ),
-                                                                        Text(
-                                                                          currentdoneTask.title ??
-                                                                              "",
-                                                                          style: const TextStyle(
-                                                                              fontSize: 17,
-                                                                              color: Colors.white,
-                                                                              fontWeight: FontWeight.bold),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              FittedBox(
-                                                                child:
-                                                                    Container(
-                                                                  constraints: BoxConstraints(
-                                                                      maxWidth:
-                                                                          MediaQuery.of(context).size.width -
-                                                                              100,
-                                                                      maxHeight:
-                                                                          MediaQuery.of(context).size.height /
-                                                                              10),
-                                                                  child:
-                                                                      SingleChildScrollView(
-                                                                    scrollDirection:
-                                                                        Axis.vertical,
-                                                                    child: Text(
-                                                                      // "Note 1",
-                                                                      currentdoneTask
-                                                                              .note ??
-                                                                          "",
-                                                                      style: const TextStyle(
-                                                                          fontSize:
-                                                                              18,
-                                                                          color: Colors
-                                                                              .white,
-                                                                          fontWeight:
-                                                                              FontWeight.w300),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(10.0),
-                                                          child: Container(
-                                                            child: Row(
-                                                              children: [
-                                                                Container(
-                                                                  height: 1000,
-                                                                  width: 1,
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 8,
-                                                                ),
-                                                                const RotatedBox(
-                                                                  quarterTurns:
-                                                                      3, // Set the number of clockwise quarter turns
-                                                                  child: Text(
-                                                                    'TODO',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          13,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ), // Define the text style
-                                                                  ),
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    )),
-                                              ),
-                                              const SizedBox(
-                                                height: 30,
-                                              ),
-                                              CupertinoActionSheetAction(
-                                                child: Text(
-                                                  "Share Task",
-                                                  style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600),
-                                                ),
-                                                onPressed: () async {
-                                                  await Share.share(
-                                                      "🚀 Task Details 🚀\n\n"
-                                                      "📌 Task Title: ${currentdoneTask.title}\n"
-                                                      "📋 Task Description: ${currentdoneTask.note}\n"
-                                                      "🗓 Task Date: ${currentdoneTask.date}\n"
-                                                      "⏰ Task Start Time: ${currentdoneTask.starttime}\n"
-                                                      "🎉 Task Completion Time: ${currentdoneTask.completedTime}\n\n"
-                                                      "✅ Task Accomplished! Dive into seamless task management with the cutting-edge Todo app!\n\n"
-                                                      "🌟 Discover the endless possibilities of the Todo app on GitHub. Let's simplify your task management journey together.\n"
-                                                      "GitHub Link: https://github.com/Aditya-Thakur-369/Todo-App",
-                                                      subject:
-                                                          "📅 Task Details from the Todo App 📝");
-                                                },
-                                              ),
-                                              CupertinoActionSheetAction(
-                                                child: Text(
-                                                  "Delete",
-                                                  style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600),
-                                                ),
-                                                onPressed: () async {
-                                                  bool rs = await FirebaseStore
-                                                      .DeleteTask(
-                                                          currentdoneTask.id
-                                                              .toString(),
-                                                          FirebaseAuth
-                                                              .instance
-                                                              .currentUser!
-                                                              .uid);
-                                                  if (rs = true) {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              const home_screen(),
-                                                        ));
-                                                    final scaffoldContext =
-                                                        ScaffoldMessenger.of(
-                                                            context);
-                                                    scaffoldContext
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          "Task Deleted Successfully ! ",
-                                                          style: TextStyle(
-                                                            fontSize: 15,
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.black,
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    print(
-                                                        "Something is wrong while deleting the Task");
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                            cancelButton:
-                                                CupertinoActionSheetAction(
-                                              isDefaultAction: true,
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text(
-                                                "Cancel",
-                                                style: TextStyle(
-                                                    color: Colors.red),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
+
+
                                     },
                                     child: Container(
                                         height: 110,

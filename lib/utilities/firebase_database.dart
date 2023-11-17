@@ -240,38 +240,38 @@ class FirebaseStore {
   
   
   
-  static Future<dynamic> thrownotificaion(String date) async {
-  try {
-    var querySnapshot = await FirebaseFirestore.instance
-        .collection("User")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("Task")
-        .where('date', isEqualTo: date)
-        .where('isCompleted', isEqualTo: false)
-        .get();
+//   static Future<dynamic> thrownotificaion(String date) async {
+//   try {
+//     var querySnapshot = await FirebaseFirestore.instance
+//         .collection("User")
+//         .doc(FirebaseAuth.instance.currentUser!.uid)
+//         .collection("Task")
+//         .where('date', isEqualTo: date)
+//         .where('isCompleted', isEqualTo: false)
+//         .get();
 
-    List<NoteModel> notes = [];
-    if (querySnapshot.docs.isNotEmpty) {
-      querySnapshot.docs.forEach((doc) {
-        // Access the 'date' field directly, assuming it's a Timestamp
-        final info = doc.data() as Map<String, dynamic>;
-        NoteModel a = NoteModel.fromMap(info);
-        notes.add(a);
-        NotificationService().scheduleNotifications(a);
-      });
-    }
+//     List<NoteModel> notes = [];
+//     if (querySnapshot.docs.isNotEmpty) {
+//       querySnapshot.docs.forEach((doc) {
+//         // Access the 'date' field directly, assuming it's a Timestamp
+//         final info = doc.data() as Map<String, dynamic>;
+//         NoteModel a = NoteModel.fromMap(info);
+//         notes.add(a);
+//         NotificationService().scheduleNotifications(a);
+//       });
+//     }
 
-    if (notes.isEmpty) {
-      print('No documents found for the specified date in get notifications.');
-      return [];
-    }
-    print(notes);
-    return notes;
-  } catch (e) {
-    print('An error occurred: $e');
-    return []; // return an empty list or any other suitable action
-  }
-}
+//     if (notes.isEmpty) {
+//       print('No documents found for the specified date in get notifications.');
+//       return [];
+//     }
+//     print(notes);
+//     return notes;
+//   } catch (e) {
+//     print('An error occurred: $e');
+//     return []; // return an empty list or any other suitable action
+//   }
+// }
 
   // static Future<bool> MarkasRead() async {}
 }

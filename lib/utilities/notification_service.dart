@@ -82,8 +82,10 @@
 // }
 
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:todo/models/model.dart';
 
@@ -103,6 +105,12 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future initNotification() async {
+
+
+
+
+
+
     // Create a notification channel for Android devices
     AndroidInitializationSettings androidInitializationSettings =
         AndroidInitializationSettings('launcher');
@@ -123,24 +131,27 @@ class NotificationService {
   }
 
   notificationsDetails() {
-    return const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'channelId 1',
-          'channelName 1',
-          playSound: true,
-          priority: Priority.high,
-          importance: Importance.max,
-          icon: 'launcher',
-          ticker: 'ticker',
-          enableVibration: true,
-          channelShowBadge: true,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ));
-  }
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'channelId 1',
+      'channelName 1',
+      playSound: true,
+      priority: Priority.high,
+      importance: Importance.max,
+      icon: 'launcher',
+      ticker: 'ticker',
+      enableVibration: true,
+      channelShowBadge: true // Set this line
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    ),
+  );
+  return platformChannelSpecifics;
+}
+
 
   Future showNotification(
       {int id = 0, String? title, String? body, String? payload}) async {
@@ -215,4 +226,7 @@ class NotificationService {
   Future cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
+
+
+  
 }

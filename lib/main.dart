@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: themeprovider.getTheme(),
-      home: splash_screen(),
+      home: const splash_screen(),
     );
   }
 }
@@ -81,39 +81,6 @@ class splash_screen extends StatefulWidget {
 }
 
 class splash_screenState extends State<splash_screen> {
-  // AskPermission() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final hasNotificationPermission =
-  //       prefs.getBool('notificationPermissionGranted');
-
-  //   if (hasNotificationPermission == null ||
-  //       hasNotificationPermission == false) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: Text('Please grant notification permission'),
-  //         content: Text(
-  //             'In order to receive notifications, please grant the app permission to access your notifications.'),
-  //         actions: [
-  //           TextButton(
-  //             child: Text('Cancel'),
-  //             onPressed: () => Navigator.of(context).pop(),
-  //           ),
-  //           TextButton(
-  //             child: Text('Grant Permission'),
-  //             onPressed: () async {
-  //               await requestNotificationPermission();
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   } else {
-  //     stateChage();
-  //   }
-  // }
-
   Future<bool> requestExactAlarmsPermission() async {
     if (TargetPlatform.android == defaultTargetPlatform) {
       PermissionStatus status = await Permission.scheduleExactAlarm.request();
@@ -165,37 +132,41 @@ class splash_screenState extends State<splash_screen> {
     var SharedPref = await SharedPreferences.getInstance();
     var isLoggedIn = SharedPref.getBool(KEYLOGIN);
 
-    Timer(Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () {
       if (isLoggedIn != null) {
         if (isLoggedIn) {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => home_screen(),
+                builder: (context) => const home_screen(),
               ));
         } else {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => signin_screen(),
+                builder: (context) => const signin_screen(),
               ));
         }
       } else {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => signin_screen(),
+              builder: (context) => const signin_screen(),
             ));
       }
     });
   }
 
   Future<void> _init() async {
-    await requestNotificationPermission();
-    await requestExactAlarmsPermission();
-    stateChage();
-    // AskPermission();
-  }
+  bool notificationPermission = await requestNotificationPermission();
+  bool exactAlarmPermission = await requestExactAlarmsPermission();
+
+  print('Notification Permission: $notificationPermission');
+  print('Exact Alarm Permission: $exactAlarmPermission');
+
+  stateChage();
+}
+
 
   @override
   void initState() {
@@ -210,17 +181,17 @@ class splash_screenState extends State<splash_screen> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             alignment: Alignment.center,
-            child: Column(
+            child:  Column(
               mainAxisAlignment:
                   MainAxisAlignment.center, // Ensure vertical centering
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SvgPicture.asset('assets/images/splash.svg'),
+                Center(child: Image.asset('assets/images/splash_logo.png')),
                 SizedBox(
                   height: 10,
                 ),
                 Text(
-                  "Make You Work Easier !!",
+                  "Manage Your Day !!",
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
