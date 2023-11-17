@@ -341,7 +341,7 @@ showOptions(BuildContext context, String name , String email){
                                             fontWeight: FontWeight.w400),
                                       ),
                                       onPressed: () {
-                                        sign_out;
+                                        sign_out(context);
                                       },
                                     ),
                                   ],

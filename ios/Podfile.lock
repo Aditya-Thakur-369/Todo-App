@@ -645,6 +645,9 @@ PODS:
     - firebase_core
     - Flutter
     - nanopb (< 2.30910.0, >= 2.30908.0)
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
   - Firebase/Auth (10.16.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 10.16.0)
@@ -794,6 +797,7 @@ PODS:
   - permission_handler_apple (9.1.1):
     - Flutter
   - PromisesObjC (2.3.1)
+  - ReachabilitySwift (5.0.0)
   - RecaptchaInterop (100.0.0)
   - share_plus (0.0.1):
     - Flutter
@@ -804,6 +808,7 @@ PODS:
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
@@ -836,12 +841,15 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - PromisesObjC
+    - ReachabilitySwift
     - RecaptchaInterop
     - Toast
 
 EXTERNAL SOURCES:
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -870,6 +878,7 @@ SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   cloud_firestore: 8adb36c2bc754352c717984153ecd7e6c6898047
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   Firebase: 25899099b77d255a636e3579c3d9dce10ec150d5
   firebase_auth: ff474dcf17bee5762106162e0791433024890ada
   firebase_core: 68027ba03585e3efe1608e35d3ab2777a64eabe9
@@ -894,11 +903,12 @@ SPEC CHECKSUMS:
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
 
-PODFILE CHECKSUM: 07c8de5daf3dba39cc68c5cf5a73c3a909d10c9a
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
 
 COCOAPODS: 1.14.0

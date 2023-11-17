@@ -81,38 +81,38 @@ class splash_screen extends StatefulWidget {
 }
 
 class splash_screenState extends State<splash_screen> {
-  AskPermission() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasNotificationPermission =
-        prefs.getBool('notificationPermissionGranted');
+  // AskPermission() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final hasNotificationPermission =
+  //       prefs.getBool('notificationPermissionGranted');
 
-    if (hasNotificationPermission == null ||
-        hasNotificationPermission == false) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Please grant notification permission'),
-          content: Text(
-              'In order to receive notifications, please grant the app permission to access your notifications.'),
-          actions: [
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text('Grant Permission'),
-              onPressed: () async {
-                await requestNotificationPermission();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    } else {
-      stateChage();
-    }
-  }
+  //   if (hasNotificationPermission == null ||
+  //       hasNotificationPermission == false) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: Text('Please grant notification permission'),
+  //         content: Text(
+  //             'In order to receive notifications, please grant the app permission to access your notifications.'),
+  //         actions: [
+  //           TextButton(
+  //             child: Text('Cancel'),
+  //             onPressed: () => Navigator.of(context).pop(),
+  //           ),
+  //           TextButton(
+  //             child: Text('Grant Permission'),
+  //             onPressed: () async {
+  //               await requestNotificationPermission();
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   } else {
+  //     stateChage();
+  //   }
+  // }
 
   Future<bool> requestExactAlarmsPermission() async {
     if (TargetPlatform.android == defaultTargetPlatform) {
@@ -168,20 +168,20 @@ class splash_screenState extends State<splash_screen> {
     Timer(Duration(seconds: 3), () {
       if (isLoggedIn != null) {
         if (isLoggedIn) {
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => home_screen(),
               ));
         } else {
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => signin_screen(),
               ));
         }
       } else {
-        Navigator.push(
+        Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => signin_screen(),
@@ -193,8 +193,8 @@ class splash_screenState extends State<splash_screen> {
   Future<void> _init() async {
     await requestNotificationPermission();
     await requestExactAlarmsPermission();
-    // stateChage();
-    AskPermission();
+    stateChage();
+    // AskPermission();
   }
 
   @override

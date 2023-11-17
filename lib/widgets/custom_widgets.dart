@@ -86,7 +86,7 @@ class _CustomElevatedButtonState extends State<CustomElevatedButton> {
       child: loading
           ? SpinKitWave(
               color: Colors.white,
-              size: 25,
+              size: 25.0,
             )
           : FittedBox(
               child: Text(

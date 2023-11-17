@@ -260,14 +260,14 @@ class _home_screenState extends State<home_screen> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            // try {
-                            //   NotificationService().showNotification(
-                            //     body: "this is body",
-                            //     title: "this is title",
-                            //   );
-                            // } catch (e) {
-                            //   print('e');
-                            // }
+                            try {
+                              NotificationService().showNotification(
+                                body: "this is body",
+                                title: "this is title",
+                              );
+                            } catch (e) {
+                              print('e');
+                            }
 
                             showOptions(
                                 context, name.toString(), email.toString());
@@ -584,11 +584,9 @@ class _home_screenState extends State<home_screen> {
                                                               child:
                                                                   SingleChildScrollView(
                                                                 scrollDirection:
-                                                                    Axis.vertical,
+                                                                    Axis.horizontal,
                                                                 child: Text(
-                                                                  currentTask
-                                                                          .title ??
-                                                                      "",
+                                                                  "Title :  ${currentTask.title ?? ""}",
                                                                   style: const TextStyle(
                                                                       letterSpacing:
                                                                           2,
@@ -622,9 +620,7 @@ class _home_screenState extends State<home_screen> {
                                                                     Axis.vertical,
                                                                 child: Text(
                                                                   // "Note 1",
-                                                                  currentTask
-                                                                          .note ??
-                                                                      "",
+                                                                  "Body : ${currentTask.note ?? ""}",
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           18,
@@ -880,13 +876,13 @@ class _home_screenState extends State<home_screen> {
                                                     scrollDirection:
                                                         Axis.horizontal,
                                                     child: Text(
-                                                      // "Title " + index.toString(),
+                                                      // "Note 1",
                                                       currentTask.title ?? "",
                                                       style: const TextStyle(
-                                                          fontSize: 17,
+                                                          fontSize: 18,
                                                           color: Colors.white,
                                                           fontWeight:
-                                                              FontWeight.bold),
+                                                              FontWeight.w300),
                                                     ),
                                                   ),
                                                 ),
@@ -1108,67 +1104,78 @@ class _home_screenState extends State<home_screen> {
                                                                 MainAxisAlignment
                                                                     .spaceBetween,
                                                             children: [
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
+                                                                    "Task Completed at : ",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 5,
+                                                                  ),
+                                                                  Text(
+                                                                    // "    02:04 PM - 02:19 PM",
+                                                                    currentdoneTask
+                                                                            .completedTime ??
+                                                                        '',
+
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
                                                               FittedBox(
                                                                 child:
                                                                     Container(
-                                                                  constraints: BoxConstraints(
-                                                                      maxWidth:
-                                                                          MediaQuery.of(context).size.width -
-                                                                              100,
-                                                                      maxHeight:
-                                                                          MediaQuery.of(context).size.height /
-                                                                              8),
-                                                                  child: Column(
-                                                                    children: [
-                                                                      Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.start,
-                                                                        children: [
-                                                                          Text(
-                                                                            "Task Completed at : ",
-                                                                            style: TextStyle(
-                                                                                fontSize: 15,
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: Colors.white),
-                                                                          ),
-                                                                          SizedBox(
-                                                                            width:
-                                                                                5,
-                                                                          ),
-                                                                          Text(
-                                                                            // "    02:04 PM - 02:19 PM",
-                                                                            currentdoneTask.completedTime ??
-                                                                                '',
-
-                                                                            style:
-                                                                                const TextStyle(
-                                                                              color: Colors.white,
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height:
-                                                                            10,
-                                                                      ),
+                                                                  color: Colors
+                                                                      .red,
+                                                                  constraints:
+                                                                      BoxConstraints(
+                                                                    maxWidth: MediaQuery.of(context)
+                                                                            .size
+                                                                            .width -
+                                                                        100,
+                                                                    maxHeight: MediaQuery.of(context)
+                                                                            .size
+                                                                            .height /
+                                                                        10,
+                                                                  ),
+                                                                  child:
                                                                       SingleChildScrollView(
-                                                                        scrollDirection:
-                                                                            Axis.vertical,
-                                                                        child:
-                                                                            Row(
-                                                                          children: [
-                                                                            Text(
-                                                                              "Title : ",
-                                                                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
-                                                                            ),
-                                                                            Text(
-                                                                              currentdoneTask.title ?? "",
-                                                                              style: const TextStyle(fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
-                                                                            ),
-                                                                          ],
+                                                                    scrollDirection:
+                                                                        Axis.horizontal,
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Text(
+                                                                          "Title : ",
+                                                                          style: TextStyle(
+                                                                              fontSize: 15,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.white),
                                                                         ),
-                                                                      ),
-                                                                    ],
+                                                                        Text(
+                                                                          currentdoneTask.title ??
+                                                                              "",
+                                                                          style: const TextStyle(
+                                                                              fontSize: 17,
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                      ],
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ),
