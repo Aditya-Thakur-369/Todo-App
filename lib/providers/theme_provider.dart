@@ -5,7 +5,7 @@ import 'package:todo/utilities/theme_data.dart';
 
 class ThemeProvider extends ChangeNotifier {
   static const String THEMEKEY = "theme";
-  bool isDarkMode = true;
+  bool isDarkMode = false;
 
   ThemeProvider() {
     themechange();

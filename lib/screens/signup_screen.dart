@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
@@ -267,7 +266,11 @@ class _signup_screenState extends State<signup_screen> {
                             const Text("Create a new account ? "),
                             TextButton(
                               onPressed: () {
-                                context.go('/signin_screen');
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => signin_screen(),
+                                    ));
                               },
                               child: const Text("Sign In"),
                             ),

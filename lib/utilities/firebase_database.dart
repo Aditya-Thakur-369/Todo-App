@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:todo/models/model.dart';
 import 'package:todo/screens/bottomsheet_addtask.dart';
 import 'package:todo/screens/home_screen.dart';
+import 'package:todo/utilities/notification_service.dart';
 
 final FirebaseFirestore store = FirebaseFirestore.instance;
 final CollectionReference reference = store.collection("Users");
@@ -93,7 +94,7 @@ class FirebaseStore {
           .get();
 
       List<NoteModel> notes = [];
-      
+
       if (querySnapshot.docs.isNotEmpty) {
         querySnapshot.docs.forEach((doc) {
           final info = doc.data() as Map<String, dynamic>;
@@ -104,6 +105,34 @@ class FirebaseStore {
 
       if (notes.isEmpty) {
         print('No documents found for the specified date.');
+        return [];
+      }
+      return notes;
+    } catch (e) {
+      print('An error occurred: $e');
+      return []; // return an empty list or any other suitable action
+    }
+  }
+
+  static Future<List<NoteModel>> GetHistory() async {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection("User")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("Task")
+          .get();
+
+      List<NoteModel> notes = [];
+      if (querySnapshot.docs.isNotEmpty) {
+        querySnapshot.docs.forEach((doc) {
+          final info = doc.data() as Map<String, dynamic>;
+          NoteModel a = NoteModel.fromMap(info);
+          notes.add(a);
+        });
+      }
+
+      if (notes.isEmpty) {
+        print('No documents found for the specified date in get history .');
         return [];
       }
       return notes;
@@ -181,15 +210,15 @@ class FirebaseStore {
     return false;
   }
 
-  static Future<bool> MarkasRead(String docId, String userId, String time) async {
+  static Future<bool> MarkasRead(
+      String docId, String userId, String time) async {
     try {
       DocumentReference ref = FirebaseFirestore.instance
           .collection("User")
           .doc(userId)
           .collection("Task")
           .doc(docId);
-      await ref.update({'isCompleted': true,
-                         'completedTime': time});
+      await ref.update({'isCompleted': true, 'completedTime': time});
       return true;
     } catch (e) {
       print('An error occurred: $e');
@@ -208,6 +237,41 @@ class FirebaseStore {
       return e;
     }
   }
+  
+  
+  
+  static Future<dynamic> thrownotificaion(String date) async {
+  try {
+    var querySnapshot = await FirebaseFirestore.instance
+        .collection("User")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("Task")
+        .where('date', isEqualTo: date)
+        .where('isCompleted', isEqualTo: false)
+        .get();
+
+    List<NoteModel> notes = [];
+    if (querySnapshot.docs.isNotEmpty) {
+      querySnapshot.docs.forEach((doc) {
+        // Access the 'date' field directly, assuming it's a Timestamp
+        final info = doc.data() as Map<String, dynamic>;
+        NoteModel a = NoteModel.fromMap(info);
+        notes.add(a);
+        NotificationService().scheduleNotifications(a);
+      });
+    }
+
+    if (notes.isEmpty) {
+      print('No documents found for the specified date in get notifications.');
+      return [];
+    }
+    print(notes);
+    return notes;
+  } catch (e) {
+    print('An error occurred: $e');
+    return []; // return an empty list or any other suitable action
+  }
+}
 
   // static Future<bool> MarkasRead() async {}
 }

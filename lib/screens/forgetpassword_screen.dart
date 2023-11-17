@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/providers/theme_provider.dart';
 import 'package:todo/screens/reset_password.dart';
@@ -22,8 +21,7 @@ class _forgetpassword_screenState extends State<forgetpassword_screen> {
   TextEditingController email = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
-  @override
-  void dispose() {}
+
 
   Future<void> sendotp() async {
     if (_formkey.currentState != null && _formkey.currentState!.validate()) {

@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
@@ -13,8 +16,12 @@ import 'package:todo/providers/dateTime_provider.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
 import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
+import 'package:todo/routes/router_name.dart';
 import 'package:todo/screens/bottomsheet_addtask.dart';
+import 'package:todo/screens/bottomsheet_profile.dart';
 import 'package:todo/screens/bottomsheet_updatetask.dart';
+
+import 'package:todo/screens/show_history.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
 import 'package:todo/utilities/notification_service.dart';
@@ -28,6 +35,70 @@ class home_screen extends StatefulWidget {
 }
 
 class _home_screenState extends State<home_screen> {
+  StreamSubscription? connection;
+  bool isoffline = false;
+
+  checkinternet(BuildContext context) {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('You\'re not connected to a networ 😞',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.red,
+          ));
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              'You\'re Back agian 👍🏻',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+          ));
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('You\'re Back agian 👍🏻',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.green,
+          ));
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('You\'re Back agian 👍🏻',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.green,
+          ));
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('You\'re Back agian 👍🏻',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.green,
+          ));
+        });
+      }
+    });
+  }
+
   String? id;
   String? title;
   String? notebody;
@@ -70,34 +141,6 @@ class _home_screenState extends State<home_screen> {
     // print(del['email']);
   }
 
-  Future<void> sign_out() async {
-    FirebaseAuth.instance.signOut().then((value) async {
-      var SharedPref = await SharedPreferences.getInstance();
-      SharedPref.setBool(splash_screenState.KEYLOGIN, false);
-      if (context.mounted) {
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const signin_screen(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(0.0, 1.0);
-                const end = Offset.zero;
-                final tween = Tween(begin: begin, end: end);
-                final offsetAnimation = animation.drive(tween);
-
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
-            ));
-      }
-      // context.go('/signin_screen');
-    });
-  }
-
   String formatDate(Map<String, dynamic>? dateMap) {
     if (dateMap == null) {
       return "";
@@ -109,16 +152,11 @@ class _home_screenState extends State<home_screen> {
     }
   }
 
-  checkmail() {
-    bool emailverify = false;
-
-    return emailverify = FirebaseAuth.instance.currentUser!.emailVerified;
-  }
-
   @override
   void initState() {
     super.initState();
     userinfo();
+    checkinternet(context);
     // getcurrentmonth();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -127,13 +165,18 @@ class _home_screenState extends State<home_screen> {
       final dates = DatesProvider();
       List<dynamic> dateList = dates.showDates();
       selectedBoxProvider.updateSelectedBox(dateList[0]);
-      checkmail();
       todaydate();
+
+      //  to find today date and pass to throw notiiccation functions
+      // DateTime now = DateTime.now();
+      // String formattedDate = DateFormat('d MMM y').format(now);
+      // print(" date : -- " + formattedDate);
+      // FirebaseStore.thrownotificaion('7 Nov 2023');
       todaydonedate();
     });
   }
 
-  void todaydate() async {
+  todaydate() async {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('d MMM y').format(now);
@@ -166,6 +209,7 @@ class _home_screenState extends State<home_screen> {
 
     List<NoteModel> tasks = taskProvider.tasks;
     List<NoteModel> donetasks = taskProvider.completedtask;
+
     showtask() async {
       tasks =
           await taskProvider.fetchTasks(formatDate(selectedbox.selectedBox));
@@ -177,6 +221,22 @@ class _home_screenState extends State<home_screen> {
       donetasks = await taskProvider
           .fetchdoneTasks(formatDate(selectedbox.selectedBox));
       print(donetasks);
+    }
+
+    Future<bool> checkNotificationPermission() async {
+      var status = await Permission.notification.status;
+      if (status.isGranted) {
+        return true;
+      } else {
+        // Request notification permission
+        await Permission.notification.request();
+        return await Permission.notification.status.isGranted;
+      }
+    }
+
+    bool notification = true;
+    void cancelnotificaion() {
+      NotificationService().cancelAllNotifications();
     }
 
     bool notificationOn = false;
@@ -199,283 +259,18 @@ class _home_screenState extends State<home_screen> {
                     Row(
                       children: [
                         GestureDetector(
-                          onTap: () {
-                            try {
-                              NotificationService().shownotification(
-                                body: "this is body",
-                                title: "this is title",
-                              );
-                            } catch (e) {
-                              print('e');
-                            }
+                          onTap: () async {
+                            // try {
+                            //   NotificationService().showNotification(
+                            //     body: "this is body",
+                            //     title: "this is title",
+                            //   );
+                            // } catch (e) {
+                            //   print('e');
+                            // }
 
-                            showCupertinoModalPopup(
-                              context: context,
-                              builder: (context) {
-                                return CupertinoActionSheet(
-                                  actions: [
-                                    Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      height: screenhight / 1.9,
-                                      child: Column(
-                                        children: [
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const CircleAvatar(
-                                                  minRadius: 50,
-                                                  maxRadius: 50,
-                                                  backgroundColor: Colors.blue,
-                                                  child: Icon(
-                                                    Icons.person_sharp,
-                                                    size: 40,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: 100,
-                                                  width: 200,
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      FittedBox(
-                                                          child: Text(
-                                                        "$name",
-                                                        style: const TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Colors.white,
-                                                            decoration:
-                                                                TextDecoration
-                                                                    .none),
-                                                      )),
-                                                      const SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      FittedBox(
-                                                          child: Text('$email ',
-                                                              style: const TextStyle(
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .white,
-                                                                  decoration:
-                                                                      TextDecoration
-                                                                          .none)))
-                                                    ],
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                          CupertinoActionSheetAction(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text(
-                                                  'Change Theme',
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                Icon(
-                                                  themeprovider.getThemeIcon(),
-                                                  size: 25,
-                                                  color: Colors.white,
-                                                )
-                                              ],
-                                            ),
-                                            onPressed: () {
-                                              themeprovider.toggleTheme();
-                                            },
-                                          ),
-                                          CupertinoActionSheetAction(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text(
-                                                  'Reminder',
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                // Icon(
-                                                //   Icons
-                                                //       .notifications_active_outlined,
-                                                //   color: Colors.white,
-                                                // ),
-                                                CupertinoSwitch(
-                                                  value: notificationOn,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      notificationOn = value;
-                                                    });
-                                                  },
-                                                  activeColor: Colors.purple,
-                                                ),
-                                              ],
-                                            ),
-                                            onPressed: () {},
-                                          ),
-                                          CupertinoActionSheetAction(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text(
-                                                  'Email Verification',
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                Icon(
-                                                  checkmail()
-                                                      ? Icons
-                                                          .mark_email_read_outlined
-                                                      : Icons.email_outlined,
-                                                  color: Colors.white,
-                                                )
-                                              ],
-                                            ),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                              if (checkmail() == true) {
-                                                final scaffoldContext =
-                                                    ScaffoldMessenger.of(
-                                                        context);
-                                                scaffoldContext.showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      "Your Mail is already Verified !",
-                                                      style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    backgroundColor:
-                                                        Colors.black,
-                                                  ),
-                                                );
-                                              } else {
-                                                final scaffoldContext =
-                                                    ScaffoldMessenger.of(
-                                                        context);
-                                                if (scaffoldContext != null) {
-                                                  FirebaseStore
-                                                          .SendMailVerification()
-                                                      .then((value) {
-                                                    scaffoldContext
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          "Mail Sent ! Please Check Your mail !",
-                                                          style: TextStyle(
-                                                            fontSize: 15,
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.black,
-                                                      ),
-                                                    );
-                                                  });
-                                                }
-                                              }
-                                            },
-                                          ),
-                                          CupertinoActionSheetAction(
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  'Share App',
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w400),
-                                                ),
-                                                Icon(
-                                                  Icons.ios_share_outlined,
-                                                  color: Colors.white,
-                                                )
-                                              ],
-                                            ),
-                                            onPressed: () async {
-                                              try {
-                                                await Share.share(
-                                                    'https://github.com/Aditya-Thakur-369/Todo-App',
-                                                    subject:
-                                                        'Github Link for This App');
-                                              } catch (e) {
-                                                print(e);
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    CupertinoActionSheetAction(
-                                      child: const Text(
-                                        'Sign Out',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w400),
-                                      ),
-                                      onPressed: () {
-                                        sign_out();
-                                      },
-                                    ),
-                                  ],
-                                  cancelButton: CupertinoActionSheetAction(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        "Cancel",
-                                        style: TextStyle(color: Colors.red),
-                                      )),
-                                );
-                              },
-                            );
+                            showOptions(
+                                context, name.toString(), email.toString());
                           },
                           child: const CircleAvatar(
                             minRadius: 25,
@@ -517,7 +312,7 @@ class _home_screenState extends State<home_screen> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "$name",
+                                  text: "$name ",
                                   style: TextStyle(
                                     color: themeprovider.isDarkMode
                                         ? Colors.black
@@ -599,6 +394,8 @@ class _home_screenState extends State<home_screen> {
           ),
 
           // Code Starts From here ------------------------
+
+// ...
 
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -789,13 +586,14 @@ class _home_screenState extends State<home_screen> {
                                                                 scrollDirection:
                                                                     Axis.vertical,
                                                                 child: Text(
-                                                                  // "Title " + index.toString(),
                                                                   currentTask
                                                                           .title ??
                                                                       "",
                                                                   style: const TextStyle(
+                                                                      letterSpacing:
+                                                                          2,
                                                                       fontSize:
-                                                                          17,
+                                                                          20,
                                                                       color: Colors
                                                                           .white,
                                                                       fontWeight:
@@ -804,30 +602,6 @@ class _home_screenState extends State<home_screen> {
                                                                 ),
                                                               ),
                                                             ),
-                                                          ),
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              const Icon(
-                                                                Icons
-                                                                    .lock_clock,
-                                                                size: 28,
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                              Text(
-                                                                // "    02:04 PM - 02:19 PM",
-                                                                "    ${currentTask.starttime} - ${currentTask.endtime}",
-
-                                                                style:
-                                                                    const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                            ],
                                                           ),
                                                           FittedBox(
                                                             child: Container(
@@ -862,7 +636,31 @@ class _home_screenState extends State<home_screen> {
                                                                 ),
                                                               ),
                                                             ),
-                                                          )
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              const Icon(
+                                                                Icons
+                                                                    .lock_clock,
+                                                                size: 28,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                              Text(
+                                                                // "    02:04 PM - 02:19 PM",
+                                                                "    ${currentTask.starttime} - ${currentTask.endtime}",
+
+                                                                style:
+                                                                    const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
@@ -953,6 +751,28 @@ class _home_screenState extends State<home_screen> {
                                                 print(
                                                     "Something is wrong while deleting the Task");
                                               }
+                                            },
+                                          ),
+                                          CupertinoActionSheetAction(
+                                            child: Text(
+                                              "Share Task",
+                                              style: TextStyle(
+                                                  color: Colors.grey.shade600),
+                                            ),
+                                            onPressed: () async {
+                                              await Share.share(
+                                                  "🚀 Task Details 🚀\n\n"
+                                                  "📌 Task Title: ${currentTask.title}\n"
+                                                  "📋 Task Description: ${currentTask.note}\n"
+                                                  "📆 Task date: ${currentTask.date}\n"
+                                                  "⏰ Task Start Time: ${currentTask.starttime}\n"
+                                                  "⌛ Task End Time: ${currentTask.endtime}\n"
+                                                  "🚧 Task Status: In Progress\n\n"
+                                                  "📝 Dive into seamless task management with the cutting-edge Todo app!\n\n"
+                                                  "🌟 Discover the endless possibilities of the Todo app on GitHub. Let's simplify your task management journey together.\n"
+                                                  "GitHub Link: https://github.com/Aditya-Thakur-369/Todo-App",
+                                                  subject:
+                                                      "📅 Task Details from the Todo App 📝");
                                             },
                                           ),
                                           CupertinoActionSheetAction(
@@ -1171,7 +991,11 @@ class _home_screenState extends State<home_screen> {
                                 ),
                                 const Text(
                                   "Add Some Task To Increase Your Productivity !!",
-                                  style: TextStyle(fontSize: 13),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontStyle: FontStyle.normal,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -1420,6 +1244,28 @@ class _home_screenState extends State<home_screen> {
                                               ),
                                               const SizedBox(
                                                 height: 30,
+                                              ),
+                                              CupertinoActionSheetAction(
+                                                child: Text(
+                                                  "Share Task",
+                                                  style: TextStyle(
+                                                      color:
+                                                          Colors.grey.shade600),
+                                                ),
+                                                onPressed: () async {
+                                                  await Share.share(
+                                                      "🚀 Task Details 🚀\n\n"
+                                                      "📌 Task Title: ${currentdoneTask.title}\n"
+                                                      "📋 Task Description: ${currentdoneTask.note}\n"
+                                                      "🗓 Task Date: ${currentdoneTask.date}\n"
+                                                      "⏰ Task Start Time: ${currentdoneTask.starttime}\n"
+                                                      "🎉 Task Completion Time: ${currentdoneTask.completedTime}\n\n"
+                                                      "✅ Task Accomplished! Dive into seamless task management with the cutting-edge Todo app!\n\n"
+                                                      "🌟 Discover the endless possibilities of the Todo app on GitHub. Let's simplify your task management journey together.\n"
+                                                      "GitHub Link: https://github.com/Aditya-Thakur-369/Todo-App",
+                                                      subject:
+                                                          "📅 Task Details from the Todo App 📝");
+                                                },
                                               ),
                                               CupertinoActionSheetAction(
                                                 child: Text(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
 import 'package:todo/providers/theme_provider.dart';
+import 'package:todo/routes/router_name.dart';
 import 'package:todo/screens/forgetpassword_screen.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signup_screen.dart'; // Make sure to import the correct shared_preference file
@@ -211,13 +211,14 @@ class _signin_screenState extends State<signin_screen> {
                           const Text("Create a new account ? "),
                           TextButton(
                             onPressed: () {
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const signup_screen(),
                                 ),
                               );
-                              // context.go('/signup_screen');
+
                             },
                             child: const Text("Sign Up"),
                           ),
