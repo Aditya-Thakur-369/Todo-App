@@ -19,12 +19,13 @@ import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:todo/utilities/notification_service.dart';
+import 'package:todo/utilities/task_notification.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  NotificationService().initNotification();
   initializeTimeZones();
+  await TaskNotification.init();
   await NotificationService().initNotification();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -158,15 +159,14 @@ class splash_screenState extends State<splash_screen> {
   }
 
   Future<void> _init() async {
-  bool notificationPermission = await requestNotificationPermission();
-  bool exactAlarmPermission = await requestExactAlarmsPermission();
+    bool notificationPermission = await requestNotificationPermission();
+    bool exactAlarmPermission = await requestExactAlarmsPermission();
 
-  print('Notification Permission: $notificationPermission');
-  print('Exact Alarm Permission: $exactAlarmPermission');
+    print('Notification Permission: $notificationPermission');
+    print('Exact Alarm Permission: $exactAlarmPermission');
 
-  stateChage();
-}
-
+    stateChage();
+  }
 
   @override
   void initState() {
@@ -181,7 +181,7 @@ class splash_screenState extends State<splash_screen> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             alignment: Alignment.center,
-            child:  Column(
+            child: Column(
               mainAxisAlignment:
                   MainAxisAlignment.center, // Ensure vertical centering
               crossAxisAlignment: CrossAxisAlignment.center,

@@ -27,28 +27,32 @@ class DatesProvider extends ChangeNotifier {
       [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] // Leap year
     ];
 
-    List<List<Map<String, dynamic>>> dates = [];
+  List<List<Map<String, dynamic>>> dates = [];
 
-    for (int year = currentYear; year <= 2024; year++) {
-      List<Map<String, dynamic>> yearData = [];
-      for (int i = currentMonth - 1; i < months.length; i++) {
-        int dateInMonth = (i == 1 && isLeapYear(year)) ? date[1][i] : date[0][i];
-        List<Map<String, dynamic>> monthData = [];
-        int startDay = (year == currentYear && i == currentMonth - 1) ? currentDay : 1;
-        for (int j = startDay; j <= dateInMonth; j++) {
-          monthData.add({
-            'month': months[i],
-            'date': j,
-            'year': year,
-          });
-        }
-        yearData.addAll(monthData);
+  for (int year = currentYear; year <= 2024; year++) {
+    List<Map<String, dynamic>> yearData = [];
+    int startMonth = (year == currentYear) ? currentMonth - 1 : 0;
+
+    for (int i = startMonth; i < months.length; i++) {
+      int dateInMonth = (i == 1 && isLeapYear(year)) ? date[1][i] : date[0][i];
+      List<Map<String, dynamic>> monthData = [];
+      int startDay = (year == currentYear && i == currentMonth - 1) ? currentDay : 1;
+
+      for (int j = startDay; j <= dateInMonth; j++) {
+        monthData.add({
+          'month': months[i % 12],
+          'date': j,
+          'year': year,
+        });
       }
-      dates.add(yearData);
+      yearData.addAll(monthData);
     }
-
-    return dates;
+    dates.add(yearData);
   }
+
+  return dates;
+}
+
 
   bool isLeapYear(int year) {
     if (year % 4 != 0) {
@@ -129,6 +133,7 @@ class DatesProvider extends ChangeNotifier {
         }
       }
     }
+  
     return resultList;
   }
 }
