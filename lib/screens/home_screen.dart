@@ -5,29 +5,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo/main.dart';
 import 'package:todo/models/model.dart';
 import 'package:todo/providers/dateTime_provider.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
 import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
-import 'package:todo/routes/router_name.dart';
 import 'package:todo/screens/bottomsheet_addtask.dart';
 import 'package:todo/screens/bottomsheet_profile.dart';
 import 'package:todo/screens/bottomsheet_updatetask.dart';
 import 'package:todo/screens/home_shimmer.dart';
-
-import 'package:todo/screens/show_history.dart';
-import 'package:todo/screens/signin_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
 import 'package:todo/utilities/notification_service.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:todo/utilities/task_notification.dart';
 
 class home_screen extends StatefulWidget {
   const home_screen({super.key});
@@ -50,7 +42,7 @@ class _home_screenState extends State<home_screen> {
         setState(() {
           isoffline = true;
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('You\'re not connected to a networ 😞',
+            content: Text('You\'re not connected to a Internet 😞',
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.red,
           ));
@@ -161,9 +153,8 @@ class _home_screenState extends State<home_screen> {
     checkinternet(context);
     // getcurrentmonth();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final selectedBoxProvider = context.read<SelectedBoxProvider>();
-      final datesProvider = context.read<DatesProvider>();
       final dates = DatesProvider();
       List<dynamic> dateList = dates.showDates();
       selectedBoxProvider.updateSelectedBox(dateList[0]);
@@ -196,12 +187,14 @@ class _home_screenState extends State<home_screen> {
 
   @override
   Widget build(BuildContext context) {
+    final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
     // for checking mail is verified or not to change mail icon
 
     final selectedBoxProvider =
         Provider.of<SelectedBoxProvider>(context, listen: true);
     final selectedbox = selectedBoxProvider;
-    final dateProvider = Provider.of<DatesProvider>(context, listen: true);
     final taskProvider = Provider.of<TaskProvider>(context);
     final dates = DatesProvider();
     List<dynamic> dateList = dates.showDates();
@@ -264,25 +257,8 @@ class _home_screenState extends State<home_screen> {
                             children: [
                               GestureDetector(
                                 onTap: () async {
-                                  //     try {
-                                  //   NotificationService().showNotification(
-                                  //     body: "this is body",
-                                  //     title: "this is title",
-                                  //   );
-                                  // } catch (e) {
-                                  //   print('e');
-                                  // }
+                                 
 
-                                  // await NotificationService().scheduleNotification(
-                                  //   id: 2,
-                                  //   title: 'Notification Title',
-                                  //   body: 'Notification Body',
-                                  //   scheduledTime:
-                                  //       DateTime.now().add(Duration(seconds: 3)),
-                                  //   payload: 'Some payload data',
-                                  // );
-
-                                  TaskNotification.showperiodicnnotification(title: 'title', body: 'body', payload: 'payload');
                                   showOptions(context, name.toString(),
                                       email.toString());
                                 },
@@ -832,6 +808,15 @@ class _home_screenState extends State<home_screen> {
                                                                 .currentUser!
                                                                 .uid);
                                                     if (rs = true) {
+                                                      var del =
+                                                          NotificationService()
+                                                              .hashString(
+                                                                  currentTask.id
+                                                                      .toString());
+                                                      print(
+                                                          "this is del : ${del}");
+                                                      await _flutterLocalNotificationsPlugin
+                                                          .cancel(del);
                                                       Navigator.pushReplacement(
                                                           context,
                                                           MaterialPageRoute(
@@ -908,6 +893,7 @@ class _home_screenState extends State<home_screen> {
                                                     FittedBox(
                                                       child: Container(
                                                         constraints: BoxConstraints(
+                                                            maxHeight: 20,
                                                             maxWidth: MediaQuery.of(
                                                                         context)
                                                                     .size
@@ -956,6 +942,7 @@ class _home_screenState extends State<home_screen> {
                                                     FittedBox(
                                                       child: Container(
                                                         constraints: BoxConstraints(
+                                                            maxHeight: 25,
                                                             maxWidth: MediaQuery.of(
                                                                         context)
                                                                     .size
@@ -1418,6 +1405,7 @@ class _home_screenState extends State<home_screen> {
                                                         FittedBox(
                                                           child: Container(
                                                             constraints: BoxConstraints(
+                                                              maxHeight: 20,
                                                                 maxWidth: MediaQuery.of(
                                                                             context)
                                                                         .size
@@ -1476,6 +1464,7 @@ class _home_screenState extends State<home_screen> {
                                                         FittedBox(
                                                           child: Container(
                                                             constraints: BoxConstraints(
+                                                              maxHeight: 20,
                                                                 maxWidth: MediaQuery.of(
                                                                             context)
                                                                         .size

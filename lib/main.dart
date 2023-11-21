@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -13,19 +14,21 @@ import 'package:todo/providers/selectedbox_provider.dart';
 import 'package:todo/providers/task_provider.dart';
 import 'package:todo/providers/theme_provider.dart';
 import 'package:todo/providers/time_provider.dart';
-import 'package:todo/routes/router_name.dart';
-import 'package:todo/routes/routes.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:todo/utilities/notification_service.dart';
-import 'package:todo/utilities/task_notification.dart';
+
 import 'firebase_options.dart';
 
+
+ final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   initializeTimeZones();
-  await TaskNotification.init();
   await NotificationService().initNotification();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -133,7 +136,7 @@ class splash_screenState extends State<splash_screen> {
     var SharedPref = await SharedPreferences.getInstance();
     var isLoggedIn = SharedPref.getBool(KEYLOGIN);
 
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
       if (isLoggedIn != null) {
         if (isLoggedIn) {
           Navigator.pushReplacement(
@@ -141,7 +144,8 @@ class splash_screenState extends State<splash_screen> {
               MaterialPageRoute(
                 builder: (context) => const home_screen(),
               ));
-        } else {
+        } else  {
+           await _flutterLocalNotificationsPlugin.cancelAll();
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -149,6 +153,7 @@ class splash_screenState extends State<splash_screen> {
               ));
         }
       } else {
+         await _flutterLocalNotificationsPlugin.cancelAll();
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(

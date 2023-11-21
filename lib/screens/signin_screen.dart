@@ -3,14 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
 import 'package:todo/providers/theme_provider.dart';
-import 'package:todo/routes/router_name.dart';
 import 'package:todo/screens/forgetpassword_screen.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signup_screen.dart'; // Make sure to import the correct shared_preference file
 import 'package:todo/utilities/firebase_database.dart';
-import 'package:todo/utilities/notification_service.dart';
-import 'package:todo/utilities/sharedprefence.dart';
-import 'package:todo/utilities/user_data.dart';
 import 'package:todo/widgets/custom_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -185,8 +181,8 @@ class _signin_screenState extends State<signin_screen> {
                         function: movetosignin,
                       ),
                       const SizedBox(height: 2),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 220),
+                      Align(
+                        alignment: Alignment.topRight,
                         child: TextButton(
                           onPressed: () {
                             // context.go('/forgetpassword_screen');

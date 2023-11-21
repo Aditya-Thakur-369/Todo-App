@@ -1,89 +1,7 @@
-// import 'dart:math';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:timezone/timezone.dart' as tz;
-
-// class NotificationService {
-//   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-//       FlutterLocalNotificationsPlugin();
-
-//   Future initNotification() async {
-
-//     AndroidInitializationSettings initializationSettingsAndroid =
-//         AndroidInitializationSettings('launcher');
-
-//     var initializationSettingsIOS = DarwinInitializationSettings(
-//       requestAlertPermission: true,
-//       requestBadgePermission: true,
-//       requestSoundPermission: true,
-//       onDidReceiveLocalNotification: (id, title, body, payload) async {},
-//     );
-
-//     InitializationSettings initializationSettings = InitializationSettings(
-//         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-
-//     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-//         onDidReceiveNotificationResponse:
-//             (NotificationResponse notificationResponse) async {});
-//   }
-
-//   notificationsDetails() {
-//     return const NotificationDetails(
-//         android: AndroidNotificationDetails(
-//           'channelId 1',
-//           'channelName 1',
-//           playSound: true,
-//           priority: Priority.high,
-//           importance: Importance.max,
-//           icon: 'launcher',
-//           ticker: 'ticker',
-//           enableVibration: true,
-//           channelShowBadge: true,
-//         ),
-//         iOS: DarwinNotificationDetails(
-//           presentAlert: true,
-//           presentBadge: true,
-//           presentSound: true,
-//         ));
-//   }
-
-//   Future shownotification(
-//       {int id = 0, String? title, String? body, String? payload}) async {
-
-//     try {
-//       return _flutterLocalNotificationsPlugin.show(
-//           id, title, body, await notificationsDetails());
-//     } catch (e) {
-//       print(e);
-//     }
-//   }
-
-//   Future scheduleNotification({
-//     int id = 0,
-//     String? title,
-//     String? body,
-//     required DateTime datetime,
-//     String? payload,
-//   }) async {
-//     try {
-//       var scheduledTime = tz.TZDateTime.from(datetime, tz.local);
-//       return _flutterLocalNotificationsPlugin.zonedSchedule(
-//           id, title, body, scheduledTime, await notificationsDetails(),
-//           payload: payload,
-//            uiLocalNotificationDateInterpretation:
-//               UILocalNotificationDateInterpretation.absoluteTime);
-//     } catch (e) {
-//       print("The error is  : ----------------- $e");
-//     }
-//   }
-
-//     cancelnotificaion() async {
-//     await _flutterLocalNotificationsPlugin.cancelAll();
-//   }
-// }
-
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -105,12 +23,6 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future initNotification() async {
-
-
-
-
-
-
     // Create a notification channel for Android devices
     AndroidInitializationSettings androidInitializationSettings =
         AndroidInitializationSettings('launcher');
@@ -131,27 +43,24 @@ class NotificationService {
   }
 
   notificationsDetails() {
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(
-    android: AndroidNotificationDetails(
-      'channelId 1',
-      'channelName 1',
-      playSound: true,
-      priority: Priority.high,
-      importance: Importance.max,
-      icon: 'launcher',
-      ticker: 'ticker',
-      enableVibration: true,
-      channelShowBadge: true // Set this line
-    ),
-    iOS: DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    ),
-  );
-  return platformChannelSpecifics;
-}
-
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails('channelId 1', 'channelName 1',
+          playSound: true,
+          priority: Priority.high,
+          importance: Importance.max,
+          icon: 'launcher',
+          ticker: 'ticker',
+          enableVibration: true,
+          channelShowBadge: true // Set this line
+          ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+    return platformChannelSpecifics;
+  }
 
   Future showNotification(
       {int id = 0, String? title, String? body, String? payload}) async {
@@ -163,13 +72,12 @@ class NotificationService {
     }
   }
 
-  Future scheduleNotification({
-    int id = 2,
-    String? title,
-    String? body,
-    required DateTime scheduledTime,
-    String? payload,
-  }) async {
+  int hashString(String? s) {
+    // You can use a more sophisticated hash function if needed
+    return s?.hashCode ?? 0;
+  }
+
+  Future scheduleNotification(NoteModel task) async {
     try {
       // Check notification permissions
       var hasPermission = await checkNotificationPermission();
@@ -178,55 +86,48 @@ class NotificationService {
         await Permission.notification.request();
       }
 
+      // Format scheduled time string to create a DateTime object
+      DateTime scheduledTime = DateFormat("dd MMM yyyy hh:mm a").parse(
+        '${task.date} ${task.starttime}',
+      );
+
       // Convert scheduled time to local time zone
-      var scheduledTimeLocal = tz.TZDateTime.from(scheduledTime, tz.local);
+      var scheduledTimeLocal = tz.TZDateTime.from(
+        scheduledTime,
+        tz.local,
+      );
+
+      // Use the hash function to convert the String? ID to an int
+      int notificationId = hashString(task.id);
+
+      print(
+          "Time: ------------ ${scheduledTimeLocal} and task id : ${task.id}");
 
       // Schedule the notification
       await _flutterLocalNotificationsPlugin.zonedSchedule(
-          id, title, body, scheduledTimeLocal, await notificationsDetails(),
-          payload: payload,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime);
+        notificationId, // Use the hash code as the notification ID
+        task.title,
+        task.note,
+        scheduledTimeLocal,
+        await notificationsDetails(),
+        payload:
+            task.id, // Use task ID as payload, you can change this as needed
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+
+      print("Here is task ID: ${notificationId}");
     } catch (e) {
       print("Error scheduling notification: $e");
     }
   }
 
-  Future<void> scheduleNotifications(NoteModel task) async {
-    if (task != null ) {
-      print(task);
-    } else {
-      print("Task is empty ");
-    }
-    final DateTime taskStartTime = DateTime.parse(task.starttime ?? '');
-    final DateTime now = DateTime.now();
-
-    if (taskStartTime.isAfter(now)) {
-      // Schedule notification only if task starttime is in the future
-      int notificationId = task.id.hashCode; // Unique ID for each notification
-
-      // Calculate the delay until the task starttime
-      int delay = taskStartTime.difference(now).inSeconds;
-
-      await Future.delayed(Duration(seconds: delay), () async {
-        await initNotification();
-        await showNotification(
-          id: notificationId,
-          title: 'Task Reminder',
-          body: 'Your task "${task.title}" is scheduled to start now.',
-        );
-      });
-    }
-  }
-
   Future cancelNotification({int id = 0}) async {
     await _flutterLocalNotificationsPlugin.cancel(id);
+    
   }
 
   Future cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
-
-
-  
 }

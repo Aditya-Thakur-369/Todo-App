@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/models/model.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
@@ -7,6 +8,7 @@ import 'package:todo/providers/time_provider.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/utilities/features.dart';
 import 'package:todo/utilities/firebase_database.dart';
+import 'package:todo/utilities/notification_service.dart';
 import 'package:todo/widgets/custom_widgets.dart'; // Add this import for the TimePicker
 
 TextEditingController title = TextEditingController();
@@ -53,6 +55,7 @@ aftertrue(BuildContext context) {
 }
 
 gettask(BuildContext context) {
+  final bool expands;
   final timeProvider = Provider.of<TimeProvider>(context, listen: false);
   final provider = context.read<SelectedBoxProvider>();
   String datevalue = provider.getFormattedDate().toString();
@@ -125,6 +128,7 @@ class _TaskFormState extends State<TaskForm> {
                   child: Column(
                     children: [
                       CustomTextFormField(
+                        maxLine: 10,
                         controller: title,
                         sur: const Icon(Icons.note_add_outlined),
                         labelText: "Note Title",
@@ -142,6 +146,7 @@ class _TaskFormState extends State<TaskForm> {
                         height: 10,
                       ),
                       CustomTextFormField(
+                        maxLine: 50,
                         controller: note,
                         sur: const Icon(
                           Icons.abc_outlined,
@@ -196,6 +201,7 @@ class _TaskFormState extends State<TaskForm> {
                                   hintText: "12:15",
                                   suffixIcon: IconButton(
                                     onPressed: () {
+                                      FocusScope.of(context).unfocus();
                                       TimePicker timePicker = TimePicker(
                                         labelText: 'Select Time',
                                         selectedTime: TimeOfDay.now(),
@@ -239,6 +245,7 @@ class _TaskFormState extends State<TaskForm> {
                                   hintText: "12:45",
                                   suffixIcon: IconButton(
                                     onPressed: () {
+                                      FocusScope.of(context).unfocus();
                                       TimePicker timePicker = TimePicker(
                                         labelText: 'Select Time',
                                         selectedTime: TimeOfDay.now(),
@@ -323,10 +330,60 @@ class _TaskFormState extends State<TaskForm> {
       ),
     );
   }
+String cleanDate(String dirtyDate) {
+  return dirtyDate.replaceAll(RegExp(r'[┤├]'), '');
+}
+
+String formatTime(DateTime time) {
+  return DateFormat("hh:mm a").format(time);
+}
+
+String calculateStartTime(String selectedStartTime, String reminderOption) {
+  try {
+    String cleanedDate = cleanDate(date.text);
+    DateTime parsedDate = DateFormat("dd MMM yyyy").parse(cleanedDate);
+
+    DateTime startTime = DateFormat("dd MMM yyyy HH:mm").parse(
+      '${DateFormat("dd MMM yyyy").format(parsedDate)} $selectedStartTime',
+    );
+
+    Duration reminderDuration = Duration(seconds: 0);
+
+    switch (reminderOption) {
+      case '5 Minutes early':
+        reminderDuration = const Duration(minutes: 5);
+        break;
+      case '10 Minutes early':
+        reminderDuration = const Duration(minutes: 10);
+        break;
+      case '15 Minutes early':
+        reminderDuration = const Duration(minutes: 15);
+        break;
+      case '30 Minutes early':
+        reminderDuration = const Duration(minutes: 30);
+        break;
+    }
+
+    // Subtract the reminder duration from the original start time
+    startTime = startTime.subtract(reminderDuration);
+
+    return formatTime(startTime); // Pass the DateTime object directly
+  } catch (e) {
+    print("Error calculating start time: $e");
+    return formatTime(DateTime.now()); // Return current time as a fallback
+  }
+}
 
   Future<void> sendtask(BuildContext context) async {
     print("running program");
     if (_formkey2.currentState != null && _formkey2.currentState!.validate()) {
+      String selectedReminder = reminder.text;
+
+      // Calculate the start time for the notification
+      String calculatedStartTime =
+          calculateStartTime(starttime.text, selectedReminder);
+
+      print("This is before time : ${calculatedStartTime.toString()}");
       NoteModel n = NoteModel(
         title: title.text,
         note: note.text,
@@ -335,11 +392,15 @@ class _TaskFormState extends State<TaskForm> {
         endtime: endtime.text,
         reminder: reminder.text,
       );
+      print(n);
       try {
         List<dynamic> result = await FirebaseStore.Savetask(n, date.text);
         if (result[0] == true) {
-          // Extract the document ID from the result
           String docId = result[1];
+          n = n.copyWith(id: docId);
+          n = n.copyWith(starttime: calculatedStartTime.toString());
+          NotificationService().scheduleNotification(n);
+          // Extract the document ID from the result
 
           // Update the NoteModel with the retrieved document ID
           n = n.copyWith(id: docId);

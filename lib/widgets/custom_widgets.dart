@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +13,8 @@ class CustomTextFormField extends StatelessWidget {
   final Widget? sur;
   final String? Function(String?)? validator;
   final bool autofocus;
+  final int minLine;
+  final int maxLine;
 
   const CustomTextFormField(
       {required this.labelText,
@@ -20,13 +24,19 @@ class CustomTextFormField extends StatelessWidget {
       this.pre,
       this.sur,
       this.validator,
-      this.autofocus = false});
+      this.maxLine = 1,
+      this.minLine = 1 ,
+      this.autofocus = false}
+      );
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+        minLines: minLine,
+        maxLines: maxLine,
         controller: controller,
         decoration: InputDecoration(
+           contentPadding: EdgeInsets.all(16.0), // R
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           labelText: labelText,
           hintText: hintText,

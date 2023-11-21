@@ -204,6 +204,7 @@ class FirebaseStore {
           .doc(docId);
       await ref.delete();
       return true;
+      
     } catch (e) {
       print('An error occurred: $e');
     }

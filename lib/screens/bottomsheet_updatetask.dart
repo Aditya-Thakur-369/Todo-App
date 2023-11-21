@@ -3,6 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todo/models/model.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
@@ -11,6 +13,7 @@ import 'package:todo/providers/time_provider.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/utilities/features.dart';
 import 'package:todo/utilities/firebase_database.dart';
+import 'package:todo/utilities/notification_service.dart';
 import 'package:todo/widgets/custom_widgets.dart'; // Add this import for the TimePicker
 
 TextEditingController title = TextEditingController();
@@ -122,7 +125,10 @@ void updatesheet(BuildContext context, String docId, String uid) async {
     isDismissible: true,
     context: context,
     builder: (context) {
-      return UpdateTask(timeProvider: timeProvider,docId: docId,);
+      return UpdateTask(
+        timeProvider: timeProvider,
+        docId: docId,
+      );
     },
   );
 }
@@ -139,6 +145,9 @@ class UpdateTask extends StatefulWidget {
 }
 
 class _UpdateTaskState extends State<UpdateTask> {
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   final _formkey3 = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -180,6 +189,7 @@ class _UpdateTaskState extends State<UpdateTask> {
                   child: Column(
                     children: [
                       CustomTextFormField(
+                        maxLine: 10,
                         controller: title,
                         sur: const Icon(Icons.note_add_outlined),
                         labelText: "Note Title",
@@ -197,6 +207,7 @@ class _UpdateTaskState extends State<UpdateTask> {
                         height: 10,
                       ),
                       CustomTextFormField(
+                        maxLine: 50,
                         controller: note,
                         sur: const Icon(
                           Icons.abc_outlined,
@@ -380,9 +391,58 @@ class _UpdateTaskState extends State<UpdateTask> {
     );
   }
 
+  String cleanDate(String dirtyDate) {
+  return dirtyDate.replaceAll(RegExp(r'[┤├]'), '');
+}
+
+String formatTime(DateTime time) {
+  return DateFormat("hh:mm a").format(time);
+}
+
+String calculateStartTime(String selectedStartTime, String reminderOption) {
+  try {
+    String cleanedDate = cleanDate(date.text);
+    DateTime parsedDate = DateFormat("dd MMM yyyy").parse(cleanedDate);
+
+    DateTime startTime = DateFormat("dd MMM yyyy HH:mm").parse(
+      '${DateFormat("dd MMM yyyy").format(parsedDate)} $selectedStartTime',
+    );
+
+    Duration reminderDuration = Duration(seconds: 0);
+
+    switch (reminderOption) {
+      case '5 Minutes early':
+        reminderDuration = const Duration(minutes: 5);
+        break;
+      case '10 Minutes early':
+        reminderDuration = const Duration(minutes: 10);
+        break;
+      case '15 Minutes early':
+        reminderDuration = const Duration(minutes: 15);
+        break;
+      case '30 Minutes early':
+        reminderDuration = const Duration(minutes: 30);
+        break;
+    }
+
+    // Subtract the reminder duration from the original start time
+    startTime = startTime.subtract(reminderDuration);
+
+    return formatTime(startTime); // Pass the DateTime object directly
+  } catch (e) {
+    print("Error calculating start time: $e");
+    return formatTime(DateTime.now()); // Return current time as a fallback
+  }
+}
+
+
   Future<void> Updatetask(String docId, BuildContext context) async {
     print("running program");
     if (_formkey3.currentState != null && _formkey3.currentState!.validate()) {
+        String selectedReminder = reminder.text;
+       String calculatedStartTime =
+          calculateStartTime(starttime.text, selectedReminder);
+
       NoteModel n = NoteModel(
         id: docId,
         title: title.text,
@@ -396,6 +456,17 @@ class _UpdateTaskState extends State<UpdateTask> {
         bool result = await FirebaseStore.Updatask(
             n, docId, FirebaseAuth.instance.currentUser!.uid);
         if (result == true) {
+          // Deteleing Notification
+          var del = NotificationService().hashString(docId.toString());
+          print("this is del : ${del}");
+          await _flutterLocalNotificationsPlugin.cancel(del);
+
+          // Schedule Notification
+          
+          
+ n = n.copyWith(starttime: calculatedStartTime.toString());
+          NotificationService().scheduleNotification(n);
+          print(n);
           // Navigator.of(context).pop();
           aftertrue(context);
         } else {
