@@ -6,21 +6,18 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/main.dart';
-import 'package:todo/models/model.dart';
 import 'package:todo/providers/theme_provider.dart';
 import 'package:todo/screens/show_history.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
+import 'package:todo/utilities/notification_service.dart';
 
 Future<void> sign_out(BuildContext context) async {
   FirebaseAuth.instance.signOut().then((value) async {
-      final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
     var SharedPref = await SharedPreferences.getInstance();
     SharedPref.setBool(splash_screenState.KEYLOGIN, false);
     if (context.mounted) {
-  Navigator.of(context).pop();
+      Navigator.of(context).pop();
       Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -77,8 +74,6 @@ class MyCupertinoActionSheet extends StatefulWidget {
 }
 
 class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   bool notification = true;
 
   @override
@@ -103,11 +98,13 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
     setState(() {
       notification = value;
       saveNotificationState(value);
-
+      setState(() {
+        NotificationService().resumeNotifications();
+      });
       if (!notification) {
-        // Cancel notifications when switch is turned off
-        _flutterLocalNotificationsPlugin.cancelAll();
-        // Add your logic to schedule notifications here
+        setState(() {
+          NotificationService().pauseNotifications();
+        });
       }
       print(value);
     });

@@ -1,11 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:todo/models/model.dart';
-import 'package:todo/screens/bottomsheet_addtask.dart';
-import 'package:todo/screens/home_screen.dart';
-import 'package:todo/utilities/notification_service.dart';
 
 final FirebaseFirestore store = FirebaseFirestore.instance;
 final CollectionReference reference = store.collection("Users");
@@ -25,7 +20,6 @@ class FirebaseStore {
     } catch (e) {
       return e; // Return any other type of exception
     }
-    return true;
   }
 
   static Future signinuser(String email, String password) async {
@@ -38,7 +32,6 @@ class FirebaseStore {
     } catch (e) {
       return e;
     }
-    return true;
   }
 
   static Future<Usermodel> userinfo() async {
@@ -58,6 +51,7 @@ class FirebaseStore {
     return a;
   }
 
+  // ignore: non_constant_identifier_names
   static Future<List<dynamic>> Savetask(NoteModel note, String date) async {
     try {
       CollectionReference taskCollection = FirebaseFirestore.instance
@@ -68,21 +62,22 @@ class FirebaseStore {
       DocumentReference docRef = await taskCollection.add(note.toMap());
 
       String docId = docRef.id;
-      print("Document ID: $docId");
+      // print("Document ID: $docId");
 
       // Update the document with the document ID
       await docRef.update({'id': docId});
 
       return [true, docId];
     } on FirebaseAuthException catch (e) {
-      print("Firebase Auth Exception: ${e.code}");
+      // print("Firebase Auth Exception: ${e.code}");
       return [e.code];
     } catch (e) {
-      print("An error occurred: $e");
+      // print("An error occurred: $e");
       return [e.toString()];
     }
   }
 
+  // ignore: non_constant_identifier_names
   static Future<List<NoteModel>> GetDoneTask(String date) async {
     try {
       var querySnapshot = await FirebaseFirestore.instance
@@ -96,7 +91,9 @@ class FirebaseStore {
       List<NoteModel> notes = [];
 
       if (querySnapshot.docs.isNotEmpty) {
+        // ignore: avoid_function_literals_in_foreach_calls
         querySnapshot.docs.forEach((doc) {
+          // ignore: unnecessary_cast
           final info = doc.data() as Map<String, dynamic>;
           NoteModel a = NoteModel.fromMap(info);
           notes.add(a);
@@ -104,12 +101,12 @@ class FirebaseStore {
       }
 
       if (notes.isEmpty) {
-        print('No documents found for the specified date.');
+        // print('No documents found for the specified date.');
         return [];
       }
       return notes;
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
       return []; // return an empty list or any other suitable action
     }
   }
@@ -124,7 +121,9 @@ class FirebaseStore {
 
       List<NoteModel> notes = [];
       if (querySnapshot.docs.isNotEmpty) {
+        // ignore: avoid_function_literals_in_foreach_calls
         querySnapshot.docs.forEach((doc) {
+          // ignore: unnecessary_cast
           final info = doc.data() as Map<String, dynamic>;
           NoteModel a = NoteModel.fromMap(info);
           notes.add(a);
@@ -132,12 +131,12 @@ class FirebaseStore {
       }
 
       if (notes.isEmpty) {
-        print('No documents found for the specified date in get history .');
+        // print('No documents found for the specified date in get history .');
         return [];
       }
       return notes;
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
       return []; // return an empty list or any other suitable action
     }
   }
@@ -154,7 +153,9 @@ class FirebaseStore {
 
       List<NoteModel> notes = [];
       if (querySnapshot.docs.isNotEmpty) {
+        // ignore: avoid_function_literals_in_foreach_calls
         querySnapshot.docs.forEach((doc) {
+          // ignore: unnecessary_cast
           final info = doc.data() as Map<String, dynamic>;
           NoteModel a = NoteModel.fromMap(info);
           notes.add(a);
@@ -162,12 +163,12 @@ class FirebaseStore {
       }
 
       if (notes.isEmpty) {
-        print('No documents found for the specified date.');
+        // print('No documents found for the specified date.');
         return [];
       }
       return notes;
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
       return []; // return an empty list or any other suitable action
     }
   }
@@ -175,7 +176,7 @@ class FirebaseStore {
   static Future<bool> Updatask(
       NoteModel task, String docId, String userId) async {
     try {
-      print(docId);
+      // print(docId);
       DocumentReference ref = FirebaseFirestore.instance
           .collection("User")
           .doc(userId)
@@ -190,11 +191,12 @@ class FirebaseStore {
       await ref.update(task.toMap());
       return true;
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
       return false;
     }
   }
 
+  // ignore: non_constant_identifier_names
   static Future<bool> DeleteTask(String docId, String userId) async {
     try {
       DocumentReference ref = FirebaseFirestore.instance
@@ -206,11 +208,12 @@ class FirebaseStore {
       return true;
       
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
     }
     return false;
   }
 
+  // ignore: non_constant_identifier_names
   static Future<bool> MarkasRead(
       String docId, String userId, String time) async {
     try {
@@ -222,7 +225,7 @@ class FirebaseStore {
       await ref.update({'isCompleted': true, 'completedTime': time});
       return true;
     } catch (e) {
-      print('An error occurred: $e');
+      // print('An error occurred: $e');
     }
     return false;
   }

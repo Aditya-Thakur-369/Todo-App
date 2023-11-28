@@ -6,6 +6,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:todo/models/model.dart';
+import 'package:todo/providers/task_provider.dart';
+import 'package:todo/screens/home_screen.dart';
 
 class NotificationService {
   Future<bool> checkNotificationPermission() async {
@@ -72,6 +74,34 @@ class NotificationService {
     }
   }
 
+  bool notificationsPaused = false;
+
+  Future pauseNotifications() async {
+    // Cancel all scheduled notifications
+    await _flutterLocalNotificationsPlugin.cancelAll();
+    notificationsPaused = true;
+  }
+
+  String formatTodayDate() {
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('d MMM y').format(now);
+    return formattedDate;
+  }
+
+  Future resumeNotifications() async {
+    if (notificationsPaused) {
+      List<NoteModel> tasks =
+          await TaskProvider().fetchTasks(formatTodayDate.toString());
+
+      for (var task in tasks) {
+        await scheduleNotification(task);
+        print("$task");
+      }
+
+      notificationsPaused = false;
+    }
+  }
+
   int hashString(String? s) {
     // You can use a more sophisticated hash function if needed
     return s?.hashCode ?? 0;
@@ -104,6 +134,7 @@ class NotificationService {
           "Time: ------------ ${scheduledTimeLocal} and task id : ${task.id}");
 
       // Schedule the notification
+      print("Here is task ID: ${notificationId}");
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         notificationId, // Use the hash code as the notification ID
         task.title,
@@ -115,8 +146,6 @@ class NotificationService {
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
-
-      print("Here is task ID: ${notificationId}");
     } catch (e) {
       print("Error scheduling notification: $e");
     }
@@ -124,7 +153,6 @@ class NotificationService {
 
   Future cancelNotification({int id = 0}) async {
     await _flutterLocalNotificationsPlugin.cancel(id);
-    
   }
 
   Future cancelAllNotifications() async {

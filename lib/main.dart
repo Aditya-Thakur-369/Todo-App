@@ -1,14 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:todo/providers/dateTime_provider.dart';
 import 'package:todo/providers/selectedbox_provider.dart';
 import 'package:todo/providers/task_provider.dart';
@@ -18,15 +15,13 @@ import 'package:todo/screens/home_screen.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:todo/utilities/notification_service.dart';
-
 import 'firebase_options.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-
- final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
-  
   WidgetsFlutterBinding.ensureInitialized();
   initializeTimeZones();
   await NotificationService().initNotification();
@@ -85,50 +80,68 @@ class splash_screen extends StatefulWidget {
 }
 
 class splash_screenState extends State<splash_screen> {
+
+  
+
   Future<bool> requestExactAlarmsPermission() async {
-    if (TargetPlatform.android == defaultTargetPlatform) {
-      PermissionStatus status = await Permission.scheduleExactAlarm.request();
-      if (status.isGranted) {
-        print('Notification permission granted.');
-        return true;
-      } else if (status.isDenied) {
-        print('Notification permission denied.');
-        return false;
-      } else if (status.isPermanentlyDenied) {
-        print('Notification permission permanently denied.');
-        openAppSettings();
-        return false;
-      } else if (status.isLimited) {
-        print('Notification permission is limited.');
-        return false;
-      }
-    }
-    return false;
+  if ( TargetPlatform.android == defaultTargetPlatform) {
+    PermissionStatus status = await Permission.notification.request();
+    if (status.isGranted) {
+      print('Notification permission granted.');
+      return true;
+    } else if (status.isDenied) {
+      print('Notification permission denied.');
+      
+      return false;
+    } else if (status.isPermanentlyDenied) {
+      print('Notification permission permanently denied.');
+      openAppSettings();
+      return false;
+    } else if (status.isLimited) {
+      print('Notification permission is limited.');
+      return false;
+    } else if (status.isPermanentlyDenied) {
+  print('Notification permission permanently denied.');
+  openAppSettings();
+  return false;
+}
   }
+  return false;
+}
 
-  Future<bool> requestNotificationPermission() async {
-    if (TargetPlatform.android == defaultTargetPlatform) {
-      PermissionStatus status = await Permission.notification.request();
+Future<bool> requestNotificationPermission() async {
+  if (TargetPlatform.android == defaultTargetPlatform) {
+    PermissionStatus status = await Permission.notification.request();
 
-      if (status.isGranted) {
-        print('Notification permission granted.');
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('notificationPermissionGranted', true);
-        return true;
-      } else if (status.isDenied) {
-        print('Notification permission denied.');
-        return false;
-      } else if (status.isPermanentlyDenied) {
-        print('Notification permission permanently denied.');
-        openAppSettings();
-        return false;
-      } else if (status.isLimited) {
-        print('Notification permission is limited.');
-        return false;
-      }
+    if (status.isGranted) {
+      print('Notification permission granted.');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('notificationPermissionGranted', true);
+      return true;
+    } else if (status.isDenied) {
+      print('Notification permission denied.');
+      return false;
+    } else if (status.isPermanentlyDenied) {
+      print('Notification permission permanently denied.');
+      openNotificationSettings();
+      return false;
+    } else if (status.isLimited) {
+      print('Notification permission is limited.');
+      return false;
     }
-    return false;
   }
+  return false;
+}
+
+
+void openNotificationSettings() async {
+  final String settingsUrl = 'app-settings:';
+  if (await canLaunch(settingsUrl)) {
+    await launch(settingsUrl);
+  } else {
+    print('Could not open app settings. Please open settings manually.');
+  }
+}
 
   static const String KEYLOGIN = 'login';
 
@@ -144,21 +157,25 @@ class splash_screenState extends State<splash_screen> {
               MaterialPageRoute(
                 builder: (context) => const home_screen(),
               ));
-        } else  {
-           await _flutterLocalNotificationsPlugin.cancelAll();
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const signin_screen(),
-              ));
+        } else {
+          await _flutterLocalNotificationsPlugin.cancelAll();
+          if (context.mounted) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const signin_screen(),
+                ));
+          }
         }
       } else {
-         await _flutterLocalNotificationsPlugin.cancelAll();
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const signin_screen(),
-            ));
+        await _flutterLocalNotificationsPlugin.cancelAll();
+          if (context.mounted) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const signin_screen(),
+                ));
+          }
       }
     });
   }

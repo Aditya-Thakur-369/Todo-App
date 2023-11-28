@@ -169,10 +169,11 @@ class _home_screenState extends State<home_screen> {
     });
   }
 
-  todaydate() async {
+   todaydate() async {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('d MMM y').format(now);
+    print(formattedDate);
 
     tasks = await taskProvider.fetchTasks(formattedDate);
   }
@@ -198,9 +199,6 @@ class _home_screenState extends State<home_screen> {
     final taskProvider = Provider.of<TaskProvider>(context);
     final dates = DatesProvider();
     List<dynamic> dateList = dates.showDates();
-    final today = dateList[0];
-
-    Map<String, dynamic>? selectedBoxValue = selectedBoxProvider.selectedBox;
 
     List<NoteModel> tasks = taskProvider.tasks;
     List<NoteModel> donetasks = taskProvider.completedtask;
@@ -229,13 +227,7 @@ class _home_screenState extends State<home_screen> {
       }
     }
 
-    bool notification = true;
-    void cancelnotificaion() {
-      NotificationService().cancelAllNotifications();
-    }
 
-    bool notificationOn = false;
-    final screenwidth = MediaQuery.of(context).size.width;
     final screenhight = MediaQuery.of(context).size.height;
     final themeprovider = Provider.of<ThemeProvider>(context);
     return name == null
