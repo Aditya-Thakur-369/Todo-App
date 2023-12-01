@@ -74,6 +74,7 @@ class MyCupertinoActionSheet extends StatefulWidget {
 }
 
 class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
+
   bool notification = true;
 
   @override
@@ -94,16 +95,18 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
     prefs.setBool('notification', value);
   }
 
-  void onNotificationChanged(bool value) {
+   onNotificationChanged(bool value,BuildContext context) {
     setState(() {
       notification = value;
       saveNotificationState(value);
       setState(() {
-        NotificationService().resumeNotifications();
+        
+        // NotificationService().resumeNotifications(context);
       });
       if (!notification) {
         setState(() {
-          NotificationService().pauseNotifications();
+      // NotificationService().pauseNotifications(context);
+          
         });
       }
       print(value);
@@ -199,7 +202,7 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
                 },
               ),
               CupertinoActionSheetAction(
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
@@ -209,11 +212,11 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
                           color: Colors.white,
                           fontWeight: FontWeight.w400),
                     ),
-                    CupertinoSwitch(
-                      value: notification,
-                      onChanged: onNotificationChanged,
-                      activeColor: Colors.purple,
-                    ),
+                    // CupertinoSwitch(
+                    //   value: notification,
+                    //   onChanged: onNotificationChanged,
+                    //   activeColor: Colors.purple,
+                    // ),
                   ],
                 ),
                 onPressed: () {},

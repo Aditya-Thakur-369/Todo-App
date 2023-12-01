@@ -84,7 +84,7 @@ class splash_screenState extends State<splash_screen> {
   
 
   Future<bool> requestExactAlarmsPermission() async {
-  if ( TargetPlatform.android == defaultTargetPlatform) {
+  if ( TargetPlatform.android == defaultTargetPlatform || TargetPlatform.iOS == defaultTargetPlatform) {
     PermissionStatus status = await Permission.notification.request();
     if (status.isGranted) {
       print('Notification permission granted.');
@@ -110,7 +110,7 @@ class splash_screenState extends State<splash_screen> {
 }
 
 Future<bool> requestNotificationPermission() async {
-  if (TargetPlatform.android == defaultTargetPlatform) {
+  if (TargetPlatform.android == defaultTargetPlatform || TargetPlatform.iOS == defaultTargetPlatform) {
     PermissionStatus status = await Permission.notification.request();
 
     if (status.isGranted) {
