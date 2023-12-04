@@ -74,7 +74,6 @@ class MyCupertinoActionSheet extends StatefulWidget {
 }
 
 class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
-
   bool notification = true;
 
   @override
@@ -95,18 +94,16 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
     prefs.setBool('notification', value);
   }
 
-   onNotificationChanged(bool value,BuildContext context) {
+  onNotificationChanged(bool value) {
     setState(() {
       notification = value;
       saveNotificationState(value);
       setState(() {
-        
-        // NotificationService().resumeNotifications(context);
+        // NotificationService().pauseNotifications();
       });
       if (!notification) {
         setState(() {
-      // NotificationService().pauseNotifications(context);
-          
+          // NotificationService().unpauseNotifications();
         });
       }
       print(value);
@@ -202,21 +199,21 @@ class _MyCupertinoActionSheetState extends State<MyCupertinoActionSheet> {
                 },
               ),
               CupertinoActionSheetAction(
-                child: const Row(
+                child:  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                     Text(
                       'Reminder',
                       style: TextStyle(
                           fontSize: 20,
                           color: Colors.white,
                           fontWeight: FontWeight.w400),
                     ),
-                    // CupertinoSwitch(
-                    //   value: notification,
-                    //   onChanged: onNotificationChanged,
-                    //   activeColor: Colors.purple,
-                    // ),
+                    CupertinoSwitch(
+                      value: notification,
+                      onChanged: onNotificationChanged,
+                      activeColor: Colors.purple,
+                    ),
                   ],
                 ),
                 onPressed: () {},
