@@ -12,6 +12,7 @@ import 'package:todo/screens/bottomsheet_addtask.dart';
 import 'package:todo/screens/bottomsheet_updatetask.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
+import 'package:todo/utilities/notification_service.dart';
 
 class ShowTask extends StatefulWidget {
   const ShowTask({super.key});
@@ -34,8 +35,6 @@ class _ShowTaskState extends State<ShowTask> {
 
   List<NoteModel> tasks = [];
 
- 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -44,12 +43,12 @@ class _ShowTaskState extends State<ShowTask> {
     final selectedBoxProvider =
         Provider.of<SelectedBoxProvider>(context, listen: false);
     final selectedbox = selectedBoxProvider;
-     showtask() async {
-    final taskProvider = Provider.of<TaskProvider>(context);
-    tasks = await taskProvider.fetchTasks(formatDate(selectedbox.selectedBox));
+    showtask() async {
+      final taskProvider = Provider.of<TaskProvider>(context);
+      tasks =
+          await taskProvider.fetchTasks(formatDate(selectedbox.selectedBox));
+    }
   }
-  }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +299,17 @@ class _ShowTaskState extends State<ShowTask> {
                                     ),
                                     CupertinoActionSheetAction(
                                       child: Text(
+                                        "Silent",
+                                        style: TextStyle(
+                                            color: Colors.grey.shade600),
+                                      ),
+                                      onPressed: () {
+                                        NotificationService()
+                                            .cancelNotification();
+                                      },
+                                    ),
+                                    CupertinoActionSheetAction(
+                                      child: Text(
                                         "Share Task",
                                         style: TextStyle(
                                             color: Colors.grey.shade600),
@@ -347,12 +357,14 @@ class _ShowTaskState extends State<ShowTask> {
                                                 FirebaseAuth
                                                     .instance.currentUser!.uid);
                                         if (rs = true) {
-                                          Navigator.pushReplacement(
+                                          if(context.mounted){
+                                            Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     const home_screen(),
                                               ));
+                                          }
                                           final scaffoldContext =
                                               ScaffoldMessenger.of(context);
                                           scaffoldContext.showSnackBar(

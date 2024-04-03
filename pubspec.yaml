@@ -54,6 +54,7 @@ dependencies:
   connectivity_plus: ^5.0.1
   shimmer: ^3.0.0
   url_launcher: ^6.2.1
+  grouped_list: ^5.1.2
 
 
 dev_dependencies:
@@ -81,6 +82,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - shorebird.yaml
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -7,20 +7,25 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:todo/models/model.dart';
 
 class NotificationService {
-  Future<bool> checkNotificationPermission() async {
-    var status = await Permission.notification.status;
-    if (status.isGranted) {
-      return true;
-    } else {
-      // Request notification permission
-      await Permission.notification.request();
-      return await Permission.notification.status.isGranted;
-    }
-  }
-
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  NotificationService() {
+    // Initialize the FlutterLocalNotificationsPlugin in the constructor
+    initNotification();
+  }
+
+  Future<bool> checkNotificationPermission() async {
+    final settings = await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.getNotificationAppLaunchDetails() ??
+        await _flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()
+            ?.getNotificationAppLaunchDetails();
+    return settings?.didNotificationLaunchApp ?? false;
+  }
   Future initNotification() async {
     // Create a notification channel for Android devices
     AndroidInitializationSettings androidInitializationSettings =
@@ -121,7 +126,7 @@ class NotificationService {
     }
   }
 
-  Future cancelNotification({int id = 0}) async {
+  Future cancelNotification({id}) async {
     await _flutterLocalNotificationsPlugin.cancel(id);
     
   }

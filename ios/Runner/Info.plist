@@ -53,5 +53,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+    <key>UNNotificationSettings</key>
+    <dict>
+        <key>Sound</key>
+        <true/>
+        <key>Alert</key>
+     	<true/>
+    	<key>Badge</key>
+    	<true/>
+	</dict>
+ 
 </dict>
 </plist>

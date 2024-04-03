@@ -109,8 +109,10 @@ class splash_screenState extends State<splash_screen> {
   return false;
 }
 
+
+
 Future<bool> requestNotificationPermission() async {
-  if (TargetPlatform.android == defaultTargetPlatform || TargetPlatform.iOS == defaultTargetPlatform) {
+  // if (TargetPlatform.android == defaultTargetPlatform || TargetPlatform.iOS == defaultTargetPlatform) {
     PermissionStatus status = await Permission.notification.request();
 
     if (status.isGranted) {
@@ -129,7 +131,7 @@ Future<bool> requestNotificationPermission() async {
       print('Notification permission is limited.');
       return false;
     }
-  }
+  // }
   return false;
 }
 
@@ -180,15 +182,29 @@ void openNotificationSettings() async {
     });
   }
 
-  Future<void> _init() async {
-    bool notificationPermission = await requestNotificationPermission();
-    bool exactAlarmPermission = await requestExactAlarmsPermission();
+  Future<bool> checkNotificationPermission() async {
+  final status = await Permission.notification.status;
+  return status.isGranted;
+}
 
-    print('Notification Permission: $notificationPermission');
-    print('Exact Alarm Permission: $exactAlarmPermission');
 
-    stateChage();
-  }
+
+ Future<void> _init() async {
+  // Check if notification permission is already granted
+  bool notificationPermission = await SharedPreferences.getInstance().then((prefs) {
+    bool granted = prefs.getBool('notificationPermissionGranted') ?? false;
+    return granted;
+  });
+
+  // Check if exact alarm permission is already granted
+  bool exactAlarmPermission = await requestExactAlarmsPermission();
+
+  print('Notification Permission: $notificationPermission');
+  print('Exact Alarm Permission: $exactAlarmPermission');
+
+  stateChage();
+}
+
 
   @override
   void initState() {

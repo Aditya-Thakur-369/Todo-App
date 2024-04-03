@@ -81,6 +81,8 @@ class NoteModel {
     this.isCompleted = false,
   });
 
+  set dummy(String dummy) {}
+
   NoteModel copyWith({
     String? id,
     String? title,

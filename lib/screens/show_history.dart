@@ -157,7 +157,7 @@ class _show_historyState extends State<show_history> {
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                         Container(
+                                                        Container(
                                                           constraints:
                                                               BoxConstraints(
                                                             maxWidth: MediaQuery.of(
@@ -191,7 +191,6 @@ class _show_historyState extends State<show_history> {
                                                             ],
                                                           ),
                                                         ),
-                                                     
                                                         Container(
                                                           constraints:
                                                               BoxConstraints(
@@ -210,7 +209,8 @@ class _show_historyState extends State<show_history> {
                                                               shrinkWrap: true,
                                                               children: [
                                                                 Text(
-                                                                  iscomplete().toString(),
+                                                                  iscomplete()
+                                                                      .toString(),
                                                                   style:
                                                                       const TextStyle(
                                                                     letterSpacing:

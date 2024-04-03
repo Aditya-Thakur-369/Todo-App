@@ -10,7 +10,7 @@ import 'package:todo/providers/theme_provider.dart';
 import 'package:todo/screens/show_history.dart';
 import 'package:todo/screens/signin_screen.dart';
 import 'package:todo/utilities/firebase_database.dart';
-import 'package:todo/utilities/notification_service.dart';
+
 
 Future<void> sign_out(BuildContext context) async {
   FirebaseAuth.instance.signOut().then((value) async {
@@ -62,6 +62,9 @@ showOptions(BuildContext context, String name, String email) {
     },
   );
 }
+
+
+
 
 class MyCupertinoActionSheet extends StatefulWidget {
   final String name;
